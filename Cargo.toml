@@ -1,7 +1,0 @@
-[package]
-name = "macroscale_game_capture"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-windows = "0.59.0"
