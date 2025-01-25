@@ -10,13 +10,14 @@ for instances such as polling events.
 
 use std::{collections::VecDeque, time::Duration};
 
-use tokio::{task::{spawn_local, JoinHandle}, time};
+use tokio::{sync::mpsc::Sender, task::{spawn_local, JoinHandle}, time};
 
-use crate::base::task::{Task, TaskMeta};
+use crate::base::{event::Event, task::{Task, TaskMeta}};
 
 pub struct TaskHandler {
-   task_queue: VecDeque<Box<dyn Task>>,
-   handles: Vec<TaskHandle>,
+    task_queue: VecDeque<Box<dyn Task>>,
+    handles: Vec<TaskHandle>,
+    event_dispatch_channel: Sender<Event>
 }
 
 struct TaskHandle {
@@ -25,10 +26,10 @@ struct TaskHandle {
 }
 
 impl TaskHandle{
-    fn create(t: Box<dyn Task>) -> TaskHandle {
+    fn create(t: Box<dyn Task>, event_dispatch_channel: Sender<Event>) -> TaskHandle {
         let meta = t.data().clone();
         log::info!("creating task handle for task: {}", meta.name);
-        let task_handle = spawn_local(t.execute());
+        let task_handle = spawn_local(t.execute(event_dispatch_channel));
 
         TaskHandle{
             task_meta: meta,
@@ -38,8 +39,12 @@ impl TaskHandle{
 }
 
 impl TaskHandler {
-    pub fn new() -> TaskHandler {
-        TaskHandler { task_queue: VecDeque::new(), handles: Vec::new() }
+    pub fn new(event_dispatch_channel: Sender<Event>) -> TaskHandler {
+        TaskHandler { 
+            task_queue: VecDeque::new(),
+            handles: Vec::new() ,
+            event_dispatch_channel
+        }
     }
 
     pub fn add_task(&mut self, task: Box<dyn Task>) {
@@ -49,7 +54,7 @@ impl TaskHandler {
 
     fn run_tasks(&mut self){
         while let Some(t) = self.task_queue.pop_front() {
-            let t_handle = TaskHandle::create(t);
+            let t_handle = TaskHandle::create(t, self.event_dispatch_channel.clone());
             log::info!("Starting task: {}", t_handle.task_meta.name);
             self.handles.push(t_handle);
         }
