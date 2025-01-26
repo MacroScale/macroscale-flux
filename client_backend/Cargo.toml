@@ -1,5 +1,5 @@
 [package]
-name = "macroscale_game_capture"
+name = "client_backend"
 version = "0.1.0"
 edition = "2021"
 
