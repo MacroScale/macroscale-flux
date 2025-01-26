@@ -1,5 +1,5 @@
 use core::task_handler::TaskHandler;
-use std::env;
+use std::{env, rc::Rc};
 
 use base::event_loop::EventLoop;
 use tokio::task;
@@ -16,20 +16,20 @@ async fn main() {
     env_logger::init();
 
     // init event loop
-    let event_loop = EventLoop::new();
+    let (event_loop, event_dispatcher) = EventLoop::new();
 
     // init task_handler
-    let task_handler = TaskHandler::new(event_loop.dispatcher());
+    let task_handler = TaskHandler::new();
 
-    // Construct a local task set that can run `!Send` futures.
+    // construct a local task set that can run `!Send` futures.
+    // used for single-threaded runtime (current_thread)
     let local = task::LocalSet::new();
 
-    // Run the local task set.
     local.run_until(async move {
-        let event_loop_task = task::spawn_local(event_loop.start());
-        let app_task = task::spawn_local(core::application::start(task_handler));
+        let event_loop_task = task::spawn_local(EventLoop::start(event_loop.clone()));
+        let app_task = task::spawn_local(core::application::start(task_handler, event_loop.clone(), event_dispatcher.clone()));
 
-        tokio::join!(app_task, event_loop_task);
+        tokio::join!(event_loop_task, app_task);
     }).await;
 
     //client::start().await;

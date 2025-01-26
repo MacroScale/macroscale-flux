@@ -1,11 +1,11 @@
-use std::{future::Future, pin::Pin, ptr};
-use tokio::sync::mpsc::Sender;
+use std::{cell::RefCell, future::Future, pin::Pin, ptr, rc::Rc, sync::Arc};
+use tokio::sync::{mpsc::Sender, Mutex};
 use windows::{
     Win32::Foundation::*,
     Win32::UI::Input::KeyboardAndMouse::*,
 };
 
-use crate::base::{event::Event, event_loop::EventDispatcher, task::{Task, TaskMeta}};
+use crate::base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
 
 pub struct RegisterHotkeysTask {
     meta: TaskMeta
@@ -23,7 +23,7 @@ impl RegisterHotkeysTask {
 
 impl Task for RegisterHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(register_hotkeys())
     }
 }

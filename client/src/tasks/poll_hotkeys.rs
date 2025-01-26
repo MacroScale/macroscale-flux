@@ -1,11 +1,11 @@
-use std::{future::Future, pin::Pin, ptr, time::Duration};
-use tokio::{sync::mpsc::Sender, time};
+use std::{cell::RefCell, future::Future, pin::Pin, ptr, rc::Rc, sync::Arc, time::Duration};
+use tokio::{sync::{mpsc::Sender, Mutex}, time};
 use windows::{
     Win32::Foundation::*,
     Win32::UI::WindowsAndMessaging::*,
 };
 
-use crate::base::{event::{Event, HotkeyEventData}, event_loop::EventDispatcher, task::{Task, TaskMeta}};
+use crate::base::{event::{Event, HotkeyEventData}, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
 
 pub struct PollHotkeysTask {
     meta: TaskMeta
@@ -23,7 +23,7 @@ impl PollHotkeysTask {
 
 impl Task for PollHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(poll_hotkeys(dispatcher))
     }
 }

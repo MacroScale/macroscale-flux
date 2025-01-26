@@ -1,7 +1,7 @@
 
-use std::{collections::VecDeque, time::Duration};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc, sync::Arc, time::Duration};
 
-use tokio::{sync::mpsc::{self, Receiver, Sender}, task::spawn_local, time};
+use tokio::{sync::{mpsc::{self, Receiver, Sender}, Mutex}, task::spawn_local, time};
 
 use crate::base::event::Event;
 
@@ -21,50 +21,63 @@ impl EventDispatcher {
     }
 }
 
-
 pub struct EventLoop {
-    sender: Sender<Event>,
-    reciever: Receiver<Event>,
-    event_queue: VecDeque<Event>,
-    dispatcher: EventDispatcher,
+    reciever: Arc<Mutex<Receiver<Event>>>,
+    event_queue: Arc<Mutex<VecDeque<Event>>>,
 }
 
-
 impl EventLoop{
-    pub fn new() -> EventLoop{
-        // inbound channel, so threads can send event to the loop
-        // this means that the event loop will be the receiver
+    pub fn new() -> (Arc<EventLoop>, EventDispatcher) {
+        // dispatch channel, so threads can send event to the loop
         let (tx, rx) = mpsc::channel(100);
 
-        EventLoop{
-            sender: tx.clone(),
-            reciever: rx,
-            event_queue: VecDeque::new(),
-            dispatcher: EventDispatcher::new(tx.clone()),
-        } 
+        let event_loop = Arc::new(
+            EventLoop {
+                reciever: Arc::new(Mutex::new(rx)),
+                event_queue: Arc::new(Mutex::new(VecDeque::new())),
+        });
+
+        (
+            event_loop,
+            EventDispatcher::new(tx)
+        )
     }
 
-    pub fn dispatcher(&self) -> EventDispatcher {
-        self.dispatcher.clone()
+    // functions for self 
+    pub async fn push_event(&self, event: Event) {
+        self.event_queue.lock().await.push_back(event);
     }
 
-    async fn poll_events(mut self){
+    pub async fn pop_event(&self) -> Option<Event> {
+        self.event_queue.lock().await.pop_front()
+    }
+
+    // functions for shared ref
+    async fn poll_inbound_events(event_loop: Arc<EventLoop>){
         log::info!("event loop poll started");
+
         loop {
-            while let Some(event) = self.reciever.recv().await {
+            let ev_rec_ref = event_loop.reciever.clone();
+            let mut reciever = ev_rec_ref.lock().await;
+
+            while let Some(event) = reciever.recv().await {
                 log::info!("event received: {:?}", event);
-                self.event_queue.push_back(event);
+                event_loop.push_event(event).await;
             }
+
+            drop(reciever);
             time::sleep(Duration::from_millis(50)).await;
         }
     }
 
-    pub async fn start(self) { 
+    pub async fn start(event_loop: Arc<EventLoop>) { 
         log::info!("starting event loop");
 
-        let poll_events_handle = spawn_local(self.poll_events());
+        let poll_events_handle = spawn_local(Self::poll_inbound_events(event_loop.clone()));
         tokio::join!(poll_events_handle);
 
         log::info!("exiting event loop");
     }
 }
+
+

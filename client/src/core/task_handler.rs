@@ -8,16 +8,15 @@ for instances such as polling events.
 
 */
 
-use std::{collections::VecDeque, time::Duration};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc, sync::Arc, time::Duration};
 
-use tokio::{sync::mpsc::Sender, task::{spawn_local, JoinHandle}, time};
+use tokio::{sync::{mpsc::Sender, Mutex}, task::{spawn_local, JoinHandle}, time};
 
-use crate::base::{event::Event, event_loop::EventDispatcher, task::{Task, TaskMeta}};
+use crate::base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
 
 pub struct TaskHandler {
     task_queue: VecDeque<Box<dyn Task>>,
     handles: Vec<TaskHandle>,
-    dispatcher: EventDispatcher
 }
 
 struct TaskHandle {
@@ -26,10 +25,10 @@ struct TaskHandle {
 }
 
 impl TaskHandle{
-    fn create(t: Box<dyn Task>, dispatcher: EventDispatcher) -> TaskHandle {
+    fn create(t: Box<dyn Task>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> TaskHandle {
         let meta = t.data().clone();
         log::info!("creating task handle for task: {}", meta.name);
-        let task_handle = spawn_local(t.execute(dispatcher));
+        let task_handle = spawn_local(t.execute(event_loop.clone(), dispatcher));
 
         TaskHandle{
             task_meta: meta,
@@ -39,11 +38,10 @@ impl TaskHandle{
 }
 
 impl TaskHandler {
-    pub fn new(dispatcher: EventDispatcher) -> TaskHandler {
+    pub fn new() -> TaskHandler {
         TaskHandler { 
             task_queue: VecDeque::new(),
             handles: Vec::new(),
-            dispatcher
         }
     }
 
@@ -52,9 +50,9 @@ impl TaskHandler {
         self.task_queue.push_back(task); 
     }
 
-    fn run_tasks(&mut self){
+    fn run_tasks(&mut self, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
         while let Some(t) = self.task_queue.pop_front() {
-            let t_handle = TaskHandle::create(t, self.dispatcher.clone());
+            let t_handle = TaskHandle::create(t, event_loop.clone(), dispatcher.clone());
             log::info!("Starting task: {}", t_handle.task_meta.name);
             self.handles.push(t_handle);
         }
@@ -73,9 +71,9 @@ impl TaskHandler {
 
     }
 
-    pub async fn start(mut self) {
+    pub async fn start(mut self, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) {
         loop {
-            self.run_tasks();
+            self.run_tasks(event_loop.clone(), dispatcher.clone());
             self.clean_handles();
             time::sleep(Duration::from_millis(50)).await;
         }
