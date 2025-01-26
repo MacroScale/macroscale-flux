@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{base::event::Event, core::task_handler::TaskHandler, tasks::{action_capture::ActionCaptureTask, action_quit::ActionQuitTask}};
+use crate::{base::event::Event, core::task_handler::TaskHandler, tasks::{action_capture::ActionCaptureTask, action_log_windows::ActionLogWindowsTask, action_quit::ActionQuitTask}};
 
 
 pub async fn handle_action_event(event: Event, task_handler: Arc<TaskHandler>) {
@@ -17,12 +17,16 @@ pub async fn handle_action_event(event: Event, task_handler: Arc<TaskHandler>) {
 
     // match key to action and dispatch action event to the event loop 
 
-    match data.id {
-        1 => { // add quit task to the task handler 
+    match data.name.as_str() {
+        "action_quit" => {
             let quit_task = ActionQuitTask::new();
             task_handler.add_task(quit_task).await; 
         }
-        2 => { // add capture task to the task handler 
+        "action_log_windows" => {
+            let print_windows_task = ActionLogWindowsTask::new();
+            task_handler.add_task(print_windows_task).await; 
+        }
+        "action_capture" => {
             let capture_task = ActionCaptureTask::new();
             task_handler.add_task(capture_task).await; 
         }

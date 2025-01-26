@@ -12,7 +12,7 @@ use std::{collections::VecDeque, sync::Arc, time::Duration};
 
 use tokio::{sync::Mutex, task::{spawn_local, JoinHandle}, time};
 
-use crate::base::{event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
+use crate::base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
 
 pub struct TaskHandler {
     task_queue: Arc<Mutex<VecDeque<Box<dyn Task>>>>,
@@ -25,10 +25,10 @@ struct TaskHandle {
 }
 
 impl TaskHandle{
-    fn create(t: Box<dyn Task>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher, task_handler: Arc<TaskHandler>) -> TaskHandle {
+    fn create(t: Box<dyn Task>, app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> TaskHandle {
         let meta = t.data().clone();
         log::info!("creating task handle for task: {}", meta.name);
-        let task_handle = spawn_local(t.execute(task_handler.clone(), event_loop.clone(), dispatcher));
+        let task_handle = spawn_local(t.execute(app_data.clone(), task_handler.clone(), event_loop.clone(), dispatcher));
 
         TaskHandle{
             task_meta: meta,
@@ -58,11 +58,11 @@ impl TaskHandler {
         self.task_queue.lock().await.pop_front() 
     }
 
-    async fn run_tasks(&self, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
+    async fn run_tasks(&self, app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
         let next_task = self.pop_task().await;
 
         if let Some(t) = next_task {
-            let t_handle = TaskHandle::create(t, event_loop.clone(), dispatcher.clone(), task_handler.clone());
+            let t_handle = TaskHandle::create(t, app_data.clone(), task_handler.clone(), event_loop.clone(), dispatcher.clone());
             log::info!("Starting task: {}", t_handle.task_meta.name);
             self.push_handle(t_handle).await;
         }
@@ -84,9 +84,9 @@ impl TaskHandler {
 
 }
 
-pub async fn start(task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) {
+pub async fn start(app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) {
     loop {
-        task_handler.run_tasks(task_handler.clone(), event_loop.clone(), dispatcher.clone()).await;
+        task_handler.run_tasks(app_data.clone(), task_handler.clone(), event_loop.clone(), dispatcher.clone()).await;
         task_handler.clean_handles().await;
         time::sleep(Duration::from_millis(50)).await;
     }

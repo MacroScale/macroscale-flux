@@ -1,13 +1,14 @@
 use core::task_handler::TaskHandler;
 use std::env;
 
-use base::event_loop::EventLoop;
+use base::{app_data::AppData, event_loop::EventLoop};
 use tokio::task;
 
 mod base;
 mod core;
 mod tasks;
 mod processors;
+mod utils;
 mod api;
 
 #[tokio::main(flavor = "current_thread")]
@@ -22,6 +23,9 @@ async fn main() {
     // init task_handler
     let task_handler = TaskHandler::new();
 
+    // init app_data
+    let app_data = AppData::new();
+
     // construct a local task set that can run `!Send` futures.
     // used for single-threaded runtime (current_thread)
     let local = task::LocalSet::new();
@@ -30,6 +34,7 @@ async fn main() {
         //let event_loop_task = task::spawn_local(EventLoop::start(event_loop.clone()));
         let application_handle = task::spawn_local(
             core::application::start(
+                app_data.clone(),
                 task_handler.clone(),
                 event_loop.clone(),
                 event_dispatcher.clone()

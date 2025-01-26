@@ -15,8 +15,9 @@ pub async fn handle_hotkey_event(event: Event, dispatcher: EventDispatcher) {
     // match key to action and dispatch action event to the event loop 
 
     match data.id {
-        1 => { dispatcher.dispatch(Event::ActionEvent(ActionEventData{ id: 1, name: "quit_action".to_string()})).await; }
-        2 => { dispatcher.dispatch(Event::ActionEvent(ActionEventData{ id: 2, name: "capture_action".to_string()})).await; }
+        1 => { dispatcher.dispatch(Event::ActionEvent(ActionEventData{ id: 1, name: "action_quit".to_string()})).await; }
+        2 => { dispatcher.dispatch(Event::ActionEvent(ActionEventData{ id: 2, name: "action_capture".to_string()})).await; }
+        3 => { dispatcher.dispatch(Event::ActionEvent(ActionEventData{ id: 3, name: "action_log_windows".to_string()})).await; }
         _ => { log::error!("no action for hotkey event: id={} vks={}", data.id, data.vks); }
     }
 }

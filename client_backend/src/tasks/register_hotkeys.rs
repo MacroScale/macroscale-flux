@@ -4,7 +4,7 @@ use windows::{
     Win32::UI::Input::KeyboardAndMouse::*,
 };
 
-use crate::{base::{event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
+use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
 
 pub struct RegisterHotkeysTask {
     meta: TaskMeta
@@ -21,7 +21,7 @@ impl RegisterHotkeysTask {
 
 impl Task for RegisterHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, _task_handler: Arc<TaskHandler>, _event_loop: Arc<EventLoop>, _dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, app_data: Arc<AppData>,  _task_handler: Arc<TaskHandler>, _event_loop: Arc<EventLoop>, _dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(register_hotkeys())
     }
 }
@@ -47,6 +47,14 @@ async fn register_hotkeys() {
             MOD_ALT,
             'W' as u32,
         );
-        log::info!("Registered Capture Hotkey: ALT + W")
+        log::info!("Registered Capture Hotkey: ALT + W");
+
+        let _ = RegisterHotKey(
+            Some(HWND(ptr::null_mut())),
+            3,
+            MOD_ALT,
+            'P' as u32,
+        );
+        log::info!("Registered Print Windows Hotkey: ALT + P");
     };
 }

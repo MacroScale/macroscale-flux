@@ -2,7 +2,7 @@
 use std::{future::Future, pin::Pin, sync::Arc, time::Duration};
 use tokio::time;
 
-use crate::{base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::{action_processor, hotkey_processor}};
+use crate::{base::{app_data::AppData, event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::{action_processor, hotkey_processor}};
 
 pub struct EventHandlerTask {
     meta: TaskMeta
@@ -19,7 +19,7 @@ impl EventHandlerTask {
 
 impl Task for EventHandlerTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, app_data: Arc<AppData>,  task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(event_handler(task_handler.clone(), event_loop.clone(), dispatcher.clone()))
     }
 }
