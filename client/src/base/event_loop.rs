@@ -1,5 +1,5 @@
 
-use std::{cell::RefCell, collections::VecDeque, rc::Rc, sync::Arc, time::Duration};
+use std::{collections::VecDeque, sync::Arc, time::Duration};
 
 use tokio::{sync::{mpsc::{self, Receiver, Sender}, Mutex}, task::spawn_local, time};
 
@@ -17,7 +17,7 @@ impl EventDispatcher {
 
     pub async fn dispatch(&self, event: Event) {
         let res = self.sender.send(event).await;
-        log::info!("dispatching event: {:?}", res);
+        log::info!("dispatching event: success={}", res.is_ok());
     }
 }
 
@@ -61,7 +61,6 @@ impl EventLoop{
             let mut reciever = ev_rec_ref.lock().await;
 
             while let Some(event) = reciever.recv().await {
-                log::info!("event received: {:?}", event);
                 event_loop.push_event(event).await;
             }
 
@@ -74,7 +73,7 @@ impl EventLoop{
         log::info!("starting event loop");
 
         let poll_events_handle = spawn_local(Self::poll_inbound_events(event_loop.clone()));
-        tokio::join!(poll_events_handle);
+        let _ = tokio::join!(poll_events_handle);
 
         log::info!("exiting event loop");
     }

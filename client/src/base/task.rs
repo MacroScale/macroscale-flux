@@ -1,16 +1,15 @@
-use std::{cell::RefCell, future::Future, pin::Pin, rc::Rc, sync::Arc};
+use std::{future::Future, pin::Pin, sync::Arc};
 
-use tokio::sync::{mpsc::Sender, Mutex};
+use crate::core::task_handler::TaskHandler;
 
-use super::{event::Event, event_loop::{EventDispatcher, EventLoop}};
+use super::event_loop::{EventDispatcher, EventLoop};
 
 #[derive(Clone)]
 pub struct TaskMeta {
-    pub id: u8,
     pub name: &'static str,
 }
 
 pub trait Task: Send {
    fn data(&self) -> &TaskMeta;
-   fn execute(self: Box<Self>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>>;
+   fn execute(self: Box<Self>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>>;
 }

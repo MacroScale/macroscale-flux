@@ -1,11 +1,10 @@
-use std::{cell::RefCell, future::Future, pin::Pin, ptr, rc::Rc, sync::Arc};
-use tokio::sync::{mpsc::Sender, Mutex};
+use std::{future::Future, pin::Pin, ptr, sync::Arc};
 use windows::{
     Win32::Foundation::*,
     Win32::UI::Input::KeyboardAndMouse::*,
 };
 
-use crate::base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
+use crate::{base::{event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
 
 pub struct RegisterHotkeysTask {
     meta: TaskMeta
@@ -14,7 +13,6 @@ pub struct RegisterHotkeysTask {
 impl RegisterHotkeysTask {
     pub fn new() -> Box<RegisterHotkeysTask> {
         let meta = TaskMeta{
-            id: 0,
             name: "register_hotkeys",
         };
         Box::new(RegisterHotkeysTask{ meta })
@@ -23,7 +21,7 @@ impl RegisterHotkeysTask {
 
 impl Task for RegisterHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, _task_handler: Arc<TaskHandler>, _event_loop: Arc<EventLoop>, _dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(register_hotkeys())
     }
 }
@@ -37,7 +35,7 @@ async fn register_hotkeys() {
     unsafe {
         let _ = RegisterHotKey(
             Some(HWND(ptr::null_mut())),
-            69,
+            1,
             MOD_ALT,
             'Q' as u32,
         );
@@ -45,7 +43,7 @@ async fn register_hotkeys() {
 
         let _ = RegisterHotKey(
             Some(HWND(ptr::null_mut())),
-            420,
+            2,
             MOD_ALT,
             'W' as u32,
         );

@@ -1,8 +1,8 @@
 
-use std::{cell::RefCell, future::Future, pin::Pin, ptr, rc::Rc, sync::Arc, time::Duration};
-use tokio::{sync::{mpsc::Sender, Mutex}, time};
+use std::{future::Future, pin::Pin, sync::Arc, time::Duration};
+use tokio::time;
 
-use crate::base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}};
+use crate::{base::{event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::{action_processor, hotkey_processor}};
 
 pub struct EventHandlerTask {
     meta: TaskMeta
@@ -11,7 +11,6 @@ pub struct EventHandlerTask {
 impl EventHandlerTask {
     pub fn new() -> Box<EventHandlerTask> {
         let meta = TaskMeta{
-            id: 0,
             name: "event_handler",
         };
         Box::new(EventHandlerTask{ meta })
@@ -20,18 +19,22 @@ impl EventHandlerTask {
 
 impl Task for EventHandlerTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
-        Box::pin(event_processor(event_loop.clone()))
+    fn execute(self: Box<Self>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+        Box::pin(event_handler(task_handler.clone(), event_loop.clone(), dispatcher.clone()))
     }
 }
 
 
-async fn event_processor(event_loop: Arc<EventLoop>){
+async fn event_handler(task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
     loop {
         let event = event_loop.pop_event().await;
 
         if let Some(e) = event {
-            log::info!("Processing event: {:?}", e);
+            match e {
+                Event::HotKeyEvent(_) => hotkey_processor::handle_hotkey_event(e, dispatcher.clone()).await,
+                Event::ActionEvent(_) => action_processor::handle_action_event(e, task_handler.clone()).await,
+            };
+
         }
 
         time::sleep(Duration::from_millis(50)).await;
