@@ -5,7 +5,7 @@ use windows::{
     Win32::UI::Input::KeyboardAndMouse::*,
 };
 
-use crate::base::{event::Event, task::{Task, TaskMeta}};
+use crate::base::{event::Event, event_loop::EventDispatcher, task::{Task, TaskMeta}};
 
 pub struct RegisterHotkeysTask {
     meta: TaskMeta
@@ -23,7 +23,7 @@ impl RegisterHotkeysTask {
 
 impl Task for RegisterHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, event_dispatch_channel: Sender<Event>) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(register_hotkeys())
     }
 }

@@ -12,12 +12,12 @@ use std::{collections::VecDeque, time::Duration};
 
 use tokio::{sync::mpsc::Sender, task::{spawn_local, JoinHandle}, time};
 
-use crate::base::{event::Event, task::{Task, TaskMeta}};
+use crate::base::{event::Event, event_loop::EventDispatcher, task::{Task, TaskMeta}};
 
 pub struct TaskHandler {
     task_queue: VecDeque<Box<dyn Task>>,
     handles: Vec<TaskHandle>,
-    event_dispatch_channel: Sender<Event>
+    dispatcher: EventDispatcher
 }
 
 struct TaskHandle {
@@ -26,10 +26,10 @@ struct TaskHandle {
 }
 
 impl TaskHandle{
-    fn create(t: Box<dyn Task>, event_dispatch_channel: Sender<Event>) -> TaskHandle {
+    fn create(t: Box<dyn Task>, dispatcher: EventDispatcher) -> TaskHandle {
         let meta = t.data().clone();
         log::info!("creating task handle for task: {}", meta.name);
-        let task_handle = spawn_local(t.execute(event_dispatch_channel));
+        let task_handle = spawn_local(t.execute(dispatcher));
 
         TaskHandle{
             task_meta: meta,
@@ -39,11 +39,11 @@ impl TaskHandle{
 }
 
 impl TaskHandler {
-    pub fn new(event_dispatch_channel: Sender<Event>) -> TaskHandler {
+    pub fn new(dispatcher: EventDispatcher) -> TaskHandler {
         TaskHandler { 
             task_queue: VecDeque::new(),
-            handles: Vec::new() ,
-            event_dispatch_channel
+            handles: Vec::new(),
+            dispatcher
         }
     }
 
@@ -54,7 +54,7 @@ impl TaskHandler {
 
     fn run_tasks(&mut self){
         while let Some(t) = self.task_queue.pop_front() {
-            let t_handle = TaskHandle::create(t, self.event_dispatch_channel.clone());
+            let t_handle = TaskHandle::create(t, self.dispatcher.clone());
             log::info!("Starting task: {}", t_handle.task_meta.name);
             self.handles.push(t_handle);
         }

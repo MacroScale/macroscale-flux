@@ -5,7 +5,7 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-use crate::base::{event::{Event, HotkeyEventData}, task::{Task, TaskMeta}};
+use crate::base::{event::{Event, HotkeyEventData}, event_loop::EventDispatcher, task::{Task, TaskMeta}};
 
 pub struct PollHotkeysTask {
     meta: TaskMeta
@@ -23,13 +23,13 @@ impl PollHotkeysTask {
 
 impl Task for PollHotkeysTask{
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>, event_dispatch_channel: Sender<Event>) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
-        Box::pin(poll_hotkeys(event_dispatch_channel))
+    fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+        Box::pin(poll_hotkeys(dispatcher))
     }
 }
 
 
-pub async fn poll_hotkeys(event_dispatch_channel: Sender<Event>){
+pub async fn poll_hotkeys(dispatcher: EventDispatcher){
     loop {
         unsafe {
             let mut msg = MSG {
@@ -49,9 +49,10 @@ pub async fn poll_hotkeys(event_dispatch_channel: Sender<Event>){
                         id: msg.wParam.0 as u32,
                         vks: msg.lParam.0 as u32,
                     });
+                    log::info!("Hotkey event: {:?}", new_event);
                     // Send the event to the event loop
-
-                    log::info!("message: {:?}", msg);
+                    let res = dispatcher.dispatch(new_event).await;
+                    //log::info!("message: {:?}", msg);
                 }
             }
         }

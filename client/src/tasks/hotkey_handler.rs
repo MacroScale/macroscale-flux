@@ -1,11 +1,11 @@
 use std::{future::Future, pin::Pin, ptr, time::Duration};
-use tokio::time;
+use tokio::{sync::mpsc::Sender, time};
 use windows::{
     Win32::Foundation::*,
     Win32::UI::Input::KeyboardAndMouse::*,
 };
 
-use crate::base::task::{Task, TaskMeta};
+use crate::base::{event::Event, event_loop::EventDispatcher, task::{Task, TaskMeta}};
 
 pub struct HotkeyHandler{
     meta: TaskMeta
@@ -23,7 +23,7 @@ impl HotkeyHandler {
 
 impl Task for HotkeyHandler {
     fn data(&self) -> &TaskMeta { &self.meta }
-    fn execute(self: Box<Self>) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
+    fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(handle_hotkey_input())
     }
 }

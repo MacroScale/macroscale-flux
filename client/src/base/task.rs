@@ -2,7 +2,7 @@ use std::{future::Future, pin::Pin};
 
 use tokio::sync::mpsc::Sender;
 
-use super::event::Event;
+use super::{event::Event, event_loop::EventDispatcher};
 
 #[derive(Clone)]
 pub struct TaskMeta {
@@ -12,5 +12,5 @@ pub struct TaskMeta {
 
 pub trait Task: Send {
    fn data(&self) -> &TaskMeta;
-   fn execute(self: Box<Self>, event_dispatch_channel: Sender<Event>) -> Pin<Box<dyn Future<Output = ()> + 'static>>;
+   fn execute(self: Box<Self>, dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>>;
 }
