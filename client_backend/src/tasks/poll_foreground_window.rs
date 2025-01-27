@@ -35,6 +35,7 @@ pub async fn poll_foreground(app_data: Arc<AppData>, dispatcher: EventDispatcher
             let foreground_window_op = utils::get_foreground_window_hwnd();
 
             if previous_hwnd_op.is_none() && foreground_window_op.is_some() {
+
                 AppData::set_current_hwnd(
                     app_data.clone(),
                     Some(foreground_window_op.unwrap())

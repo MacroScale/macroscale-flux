@@ -32,7 +32,7 @@ pub async fn poll_game_window(app_data: Arc<AppData>, dispatcher: EventDispatche
     loop {
         unsafe {
             if app_data.get_current_hwnd().await.is_none() {continue;}
-
+             
         }
         time::sleep(Duration::from_millis(50)).await;
     }
