@@ -14,7 +14,7 @@ pub struct PollForegroundWindowTask {
 impl PollForegroundWindowTask {
     pub fn new() -> Box<PollForegroundWindowTask> {
         let meta = TaskMeta{
-            name: "poll_hotkeys",
+            name: "poll_foreground_window",
         };
         Box::new(PollForegroundWindowTask { meta })
     }
@@ -39,6 +39,7 @@ pub async fn poll_foreground(app_data: Arc<AppData>, dispatcher: EventDispatcher
                     app_data.clone(),
                     Some(foreground_window_op.unwrap())
                 ).await;
+                    let fp = utils::get_file_path_hwnd(foreground_window_op.unwrap());
             }
             else if previous_hwnd_op.is_some() && foreground_window_op.is_none() {
                 AppData::set_current_hwnd(

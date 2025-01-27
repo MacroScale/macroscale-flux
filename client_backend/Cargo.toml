@@ -22,7 +22,10 @@ version = "0.59.0"
 features = [ 
     "Win32_Foundation",
     "Win32_UI_Input_KeyboardAndMouse",
-    "Win32_UI_WindowsAndMessaging"
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Threading",
+    "Win32_System_ProcessStatus",
+    "Graphics_Capture"
 ]
 
 [target.x86_64-pc-windows-gnu]
