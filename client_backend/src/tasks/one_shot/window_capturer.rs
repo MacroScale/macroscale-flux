@@ -1,13 +1,13 @@
 use std::{future::Future, pin::Pin, sync::Arc, time::Duration};
 use tokio::time;
 
-use crate::{base::{app_data::AppData, event::Event, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::{action_processor, hotkey_processor}};
-
 use windows::{
     Win32::Foundation::*,
     Win32::UI::WindowsAndMessaging::*,
     Graphics::Capture::*,
 };
+
+use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
 
 pub struct WindowCapturerTask {
     meta: TaskMeta

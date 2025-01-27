@@ -5,7 +5,7 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-use crate::{base::{app_data::AppData, event::{Event, HotkeyEventData}, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, utils};
+use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, utils};
 
 pub struct PollForegroundWindowTask {
     meta: TaskMeta

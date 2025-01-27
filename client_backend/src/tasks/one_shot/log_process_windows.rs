@@ -7,20 +7,20 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-pub struct ActionLogWindowsTask {
+pub struct LogProcessWindowsTask {
     meta: TaskMeta
 }
 
-impl ActionLogWindowsTask {
-    pub fn new() -> Box<ActionLogWindowsTask> {
+impl LogProcessWindowsTask {
+    pub fn new() -> Box<LogProcessWindowsTask> {
         let meta = TaskMeta {
-            name: "action_log_windows"
+            name: "log_process_windows"
         };
-        Box::new(ActionLogWindowsTask{ meta })
+        Box::new(LogProcessWindowsTask{ meta })
     }
 }
 
-impl Task for ActionLogWindowsTask {
+impl Task for LogProcessWindowsTask {
     fn data(&self) -> &TaskMeta { &self.meta }
     fn execute(self: Box<Self>, app_data: Arc<AppData>, _task_handler: Arc<TaskHandler>, _event_loop: Arc<EventLoop>, _dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
         Box::pin(action_log_windows())

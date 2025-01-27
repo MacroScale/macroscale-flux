@@ -16,8 +16,8 @@ impl EventDispatcher {
     }
 
     pub async fn dispatch(&self, event: Event) {
-        let res = self.sender.send(event).await;
-        log::info!("dispatching event: success={}", res.is_ok());
+        log::info!("dispatching event: {:?}", event);
+        let _ = self.sender.send(event).await;
     }
 }
 
@@ -54,8 +54,6 @@ impl EventLoop{
 
     // functions for shared ref
     async fn poll_inbound_events(event_loop: Arc<EventLoop>){
-        log::info!("event loop poll started");
-
         loop {
             let ev_rec_ref = event_loop.reciever.clone();
             let mut reciever = ev_rec_ref.lock().await;

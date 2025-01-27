@@ -27,7 +27,7 @@ struct TaskHandle {
 impl TaskHandle{
     fn create(t: Box<dyn Task>, app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher) -> TaskHandle {
         let meta = t.data().clone();
-        log::info!("creating task handle for task: {}", meta.name);
+        //log::info!("creating task handle for task: {}", meta.name);
         let task_handle = spawn_local(t.execute(app_data.clone(), task_handler.clone(), event_loop.clone(), dispatcher));
 
         TaskHandle{

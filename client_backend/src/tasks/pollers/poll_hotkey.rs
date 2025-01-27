@@ -5,7 +5,7 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-use crate::{base::{app_data::AppData, event::{Event, HotkeyEventData}, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
+use crate::{base::{app_data::AppData, event::{Event, EventType, HotkeyEventData}, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
 
 pub struct PollHotkeysTask {
     meta: TaskMeta
@@ -43,11 +43,13 @@ pub async fn poll_hotkeys(dispatcher: EventDispatcher){
             let peek_value = PeekMessageW(&mut msg, None, 0, 0, PM_REMOVE).as_bool();
             if  peek_value {
                 if msg.message == WM_HOTKEY {
-                    let new_event = Event::HotKeyEvent(HotkeyEventData{
-                        id: msg.wParam.0 as u32,
-                        vks: msg.lParam.0 as u32,
-                    });
-                    dispatcher.dispatch(new_event).await;
+                    let event_data = EventType::Hotkey(
+                        HotkeyEventData {
+                            id: msg.wParam.0 as u32,
+                            vks: msg.lParam.0 as u32,
+                        }
+                    );
+                    dispatcher.dispatch(Event(event_data)).await;
                 }
             }
         }
