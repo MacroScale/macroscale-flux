@@ -8,7 +8,7 @@ This is a collection of tasks used to poll data from various sources.
 
 Polls all run on separate threads, polling works by constantly looping the same code block.
 The general time for polling is **100ms**, however, the event poller (poll_events) needs 
-to run faster than this to ensure that event work is carried out before another poll is run. 
+to run faster than this (**50ms**) to ensure that event work is carried out before another poll is run. 
 This is to avoid duplicate events being dispatched.
 
 e.g. 
