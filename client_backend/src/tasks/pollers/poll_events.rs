@@ -25,21 +25,25 @@ impl Task for PollEventsTask{
 }
 
 
-async fn event_handler(_app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
+// events MUST be processed synchronously, unlike async tasks
+async fn event_handler(app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, event_loop: Arc<EventLoop>, dispatcher: EventDispatcher){
     loop {
+        time::sleep(Duration::from_millis(50)).await;
+
         let event = match event_loop.pop_event().await {
             Some(e) => e,
-            None => continue,
+            None => { continue; },
         };
 
         match event.0 {
-            EventType::Hotkey(data) => hotkey_processor::handle_hotkey_event(data, dispatcher.clone()).await,
+            EventType::Hotkey(data) => hotkey_processor::process_hotkey_event(data, dispatcher.clone()).await,
             EventType::Quit => task_handler.add_task(QuitApplicationTask::new()).await, 
             EventType::Capture => task_handler.add_task(CaptureGameplayTask::new()).await, 
             EventType::LogProcessWindows => task_handler.add_task(LogProcessWindowsTask::new()).await, 
-            EventType::ChangeForegroundProcessHWND(data) => {},
-        }
 
-        time::sleep(Duration::from_millis(50)).await;
+            // could not implement a one-shot task for these events, hwnd cannot be sent across threads
+            EventType::ChangeForegroundProcessHWND(data) => AppData::set_current_hwnd(app_data.clone(), data.hwnd).await,
+            EventType::ChangeGameProcessHWND(data) => AppData::set_game_hwnd(app_data.clone(), data.hwnd).await,
+        }
     }
 }

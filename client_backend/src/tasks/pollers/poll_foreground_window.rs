@@ -5,7 +5,7 @@ use windows::{
     Win32::UI::WindowsAndMessaging::*,
 };
 
-use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, utils};
+use crate::{base::{app_data::AppData, event::{ChangeForegroundWindowData, Event, EventType}, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, utils};
 
 pub struct PollForegroundWindowTask {
     meta: TaskMeta
@@ -30,38 +30,17 @@ impl Task for PollForegroundWindowTask{
 
 pub async fn poll_foreground(app_data: Arc<AppData>, dispatcher: EventDispatcher){
     loop {
+        time::sleep(Duration::from_millis(100)).await;
         unsafe {
             let previous_hwnd_op = app_data.get_current_hwnd().await;
             let foreground_window_op = utils::get_foreground_window_hwnd();
 
-            if previous_hwnd_op.is_none() && foreground_window_op.is_some() {
-
-                AppData::set_current_hwnd(
-                    app_data.clone(),
-                    Some(foreground_window_op.unwrap())
-                ).await;
-                    let fp = utils::get_file_path_hwnd(foreground_window_op.unwrap());
+            if previous_hwnd_op != foreground_window_op {
+                // send event to dispatcher
+                let event_data = ChangeForegroundWindowData{hwnd: foreground_window_op}; 
+                let event = Event(EventType::ChangeForegroundProcessHWND(event_data));
+                dispatcher.dispatch(event).await;
             }
-            else if previous_hwnd_op.is_some() && foreground_window_op.is_none() {
-                AppData::set_current_hwnd(
-                    app_data.clone(),
-                    None
-                ).await;
-            }
-            else if previous_hwnd_op.is_some() && foreground_window_op.is_some() {
-
-                let previous_hwnd = previous_hwnd_op.unwrap();
-                let foreground_window = foreground_window_op.unwrap();
-
-                if previous_hwnd != foreground_window {
-                    AppData::set_current_hwnd(
-                        app_data.clone(),
-                        Some(foreground_window)
-                    ).await;
-                }
-            }
-
         }
-        time::sleep(Duration::from_millis(50)).await;
     }
 }

@@ -43,6 +43,11 @@ impl AppData {
         current_window_hwnd.clone()
     }
 
+    pub async fn get_game_hwnd(&self) -> Option<HWND> {
+        let current_window_hwnd = self.current_game_hwnd.lock().await;
+        current_window_hwnd.clone()
+    }
+
     pub async fn set_current_hwnd(app_data: Arc<AppData>, hwnd: Option<HWND>) {
         let mut data_ref = app_data.current_window_hwnd.lock().await;
         *data_ref = hwnd;

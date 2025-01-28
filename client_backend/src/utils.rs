@@ -42,17 +42,34 @@ pub fn get_file_path_hwnd(hwnd: HWND) -> Option<String> {
     }
 }
 
-pub fn is_game(hwnd: HWND) -> Option<bool> {
-    let file_path = match get_file_path_hwnd(hwnd){
+pub fn is_game(hwnd: Option<HWND>) -> bool {
+
+    let handle = match hwnd {
+        Some(hwnd) => hwnd,
+        None => return false 
+    };
+
+    let file_path = match get_file_path_hwnd(handle){
         Some(fp) => fp,
-        None => return None
+        None => return false 
     };
 
     if file_path.contains("steamapps") {
-        return Some(true);
+        return true;
     }
 
-    None
+   false 
+}
+
+// Check if the window is alive
+// WARNING: This function is not reliable, the function ISWindow checks if 
+// a window exists with the given handle, however, windows sometimes reuses
+// handles, so it is possible that the handle is valid but the window is not.
+pub fn is_hwnd_alive(hwnd: Option<HWND>) -> bool {
+    unsafe{
+        let is_window: BOOL = IsWindow(hwnd);
+        return is_window == BOOL::from(true);
+    }
 }
 
 pub fn hwnd_to_string(hwnd: HWND) -> Option<String> {

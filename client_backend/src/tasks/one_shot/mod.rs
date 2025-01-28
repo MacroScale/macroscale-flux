@@ -1,5 +1,4 @@
 pub mod capture_gameplay;
-pub mod change_foreground_window;
 pub mod log_process_windows;
 pub mod quit_application;
 pub mod register_hotkeys;

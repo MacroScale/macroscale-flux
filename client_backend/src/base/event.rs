@@ -11,7 +11,8 @@ pub enum EventType {
     Quit,
     Capture,
     LogProcessWindows,
-    ChangeForegroundProcessHWND(ActionChangeForegroundProcessHWNDData),
+    ChangeForegroundProcessHWND(ChangeForegroundWindowData),
+    ChangeGameProcessHWND(ChangeGameWindowData),
 }
 
 #[derive(Debug)]
@@ -23,9 +24,12 @@ pub struct HotkeyEventData{
 }
 
 #[derive(Debug)]
-pub struct ActionChangeForegroundProcessHWNDData{
-    /// The id of the action hotkey
-    pub id: u32,  
-    pub name: String,  
+pub struct ChangeForegroundWindowData {
     pub hwnd: Option<HWND>,
 }
+
+#[derive(Debug)]
+pub struct ChangeGameWindowData {
+    pub hwnd: Option<HWND>,
+}
+

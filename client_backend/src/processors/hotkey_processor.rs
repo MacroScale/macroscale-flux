@@ -1,7 +1,7 @@
 use crate::base::{event::{Event, EventType, HotkeyEventData}, event_loop::EventDispatcher};
 
 
-pub async fn handle_hotkey_event(data: HotkeyEventData, dispatcher: EventDispatcher) {
+pub async fn process_hotkey_event(data: HotkeyEventData, dispatcher: EventDispatcher) {
 
     log::info!("handling hotkey event: id={} vks={}", data.id, data.vks);
 

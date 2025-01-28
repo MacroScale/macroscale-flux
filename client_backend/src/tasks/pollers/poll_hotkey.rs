@@ -30,6 +30,7 @@ impl Task for PollHotkeysTask{
 
 pub async fn poll_hotkeys(dispatcher: EventDispatcher){
     loop {
+        time::sleep(Duration::from_millis(100)).await;
         unsafe {
             let mut msg = MSG {
                 hwnd: HWND(ptr::null_mut()),
@@ -53,6 +54,5 @@ pub async fn poll_hotkeys(dispatcher: EventDispatcher){
                 }
             }
         }
-        time::sleep(Duration::from_millis(50)).await;
     }
 }
