@@ -2,25 +2,25 @@ use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
 
-pub struct CaptureGameplayTask {
+pub struct StopCaptureTask {
     meta: TaskMeta
 }
 
-impl CaptureGameplayTask {
-    pub fn new() -> Box<CaptureGameplayTask> {
+impl StopCaptureTask {
+    pub fn new() -> Box<StopCaptureTask> {
         let meta = TaskMeta {
             name: "capture_gameplay",
         };
-        Box::new(CaptureGameplayTask{ meta })
+        Box::new(StopCaptureTask{ meta })
     }
 }
 
-impl Task for CaptureGameplayTask {
+impl Task for StopCaptureTask {
     fn data(&self) -> &TaskMeta { &self.meta }
     fn execute(self: Box<Self>, app_data: Arc<AppData>, _task_handler: Arc<TaskHandler>, _event_loop: Arc<EventLoop>, _dispatcher: EventDispatcher) -> Pin<Box<dyn Future<Output = ()> + 'static>> { 
-        Box::pin(action_capture())
+        Box::pin(stop_capture())
     }
 }
 
-async fn action_capture() {
+async fn stop_capture() {
 }

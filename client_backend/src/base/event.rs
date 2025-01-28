@@ -9,7 +9,8 @@ pub struct Event(pub EventType);
 pub enum EventType {
     Hotkey(HotkeyEventData),
     Quit,
-    Capture,
+    StartCapture,
+    StopCapture,
     LogProcessWindows,
     ChangeForegroundProcessHWND(ChangeForegroundWindowData),
     ChangeGameProcessHWND(ChangeGameWindowData),

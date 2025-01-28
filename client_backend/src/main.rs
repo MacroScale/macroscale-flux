@@ -1,4 +1,5 @@
-use core::{capture_handler::CaptureHandler, task_handler::TaskHandler};
+#![allow(warnings)] 
+use core::task_handler::TaskHandler;
 use std::env;
 
 use base::{app_data::AppData, event_loop::EventLoop};
@@ -24,9 +25,6 @@ async fn main() {
     let (event_loop, event_dispatcher) = EventLoop::new();
 
     // init task_handler
-    let capture_handler = CaptureHandler::new();
-
-    // init task_handler
     let task_handler = TaskHandler::new();
 
     // construct a local task set that can run `!Send` futures.
@@ -41,7 +39,6 @@ async fn main() {
                 task_handler.clone(),
                 event_loop.clone(),
                 event_dispatcher.clone(),
-                capture_handler.clone()
             )
         );
 

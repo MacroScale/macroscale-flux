@@ -45,13 +45,21 @@ async fn register_hotkeys() {
             Some(HWND(ptr::null_mut())),
             2,
             MOD_ALT,
-            'W' as u32,
+            'R' as u32,
         );
-        log::info!("Registered Capture Hotkey: ALT + W");
+        log::info!("Registered Start Capture Hotkey(2): ALT + R");
 
         let _ = RegisterHotKey(
             Some(HWND(ptr::null_mut())),
             3,
+            MOD_ALT,
+            'E' as u32,
+        );
+        log::info!("Registered Stop Capture Hotkey(3): ALT + E");
+
+        let _ = RegisterHotKey(
+            Some(HWND(ptr::null_mut())),
+            4,
             MOD_ALT,
             'P' as u32,
         );

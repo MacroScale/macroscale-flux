@@ -2,7 +2,7 @@
 use std::{future::Future, pin::Pin, sync::Arc, time::Duration};
 use tokio::time;
 
-use crate::{base::{app_data::AppData, event::EventType, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::hotkey_processor, tasks::one_shot::{capture_gameplay::CaptureGameplayTask, log_process_windows::LogProcessWindowsTask, quit_application::QuitApplicationTask}};
+use crate::{base::{app_data::AppData, event::EventType, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler, processors::hotkey_processor, tasks::one_shot::{log_process_windows::LogProcessWindowsTask, quit_application::QuitApplicationTask, start_capture::StartCaptureTask, stop_capture::StopCaptureTask}};
 
 pub struct PollEventsTask {
     meta: TaskMeta
@@ -38,7 +38,8 @@ async fn event_handler(app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, e
         match event.0 {
             EventType::Hotkey(data) => hotkey_processor::process_hotkey_event(data, dispatcher.clone()).await,
             EventType::Quit => task_handler.add_task(QuitApplicationTask::new()).await, 
-            EventType::Capture => task_handler.add_task(CaptureGameplayTask::new()).await, 
+            EventType::StartCapture => task_handler.add_task(StartCaptureTask::new()).await, 
+            EventType::StopCapture => task_handler.add_task(StopCaptureTask::new()).await, 
             EventType::LogProcessWindows => task_handler.add_task(LogProcessWindowsTask::new()).await, 
 
             // could not implement a one-shot task for these events, hwnd cannot be sent across threads

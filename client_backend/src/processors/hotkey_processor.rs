@@ -7,8 +7,9 @@ pub async fn process_hotkey_event(data: HotkeyEventData, dispatcher: EventDispat
 
     match data.id {
         1 => { dispatcher.dispatch(Event(EventType::Quit)).await; }
-        2 => { dispatcher.dispatch(Event(EventType::Capture)).await; }
-        3 => { dispatcher.dispatch(Event(EventType::LogProcessWindows)).await; }
+        2 => { dispatcher.dispatch(Event(EventType::StartCapture)).await; }
+        3 => { dispatcher.dispatch(Event(EventType::StopCapture)).await; }
+        4 => { dispatcher.dispatch(Event(EventType::LogProcessWindows)).await; }
         _ => { log::error!("no action for hotkey event: id={} vks={}", data.id, data.vks); }
     }
 }
