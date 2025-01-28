@@ -1,4 +1,4 @@
-use core::task_handler::TaskHandler;
+use core::{capture_handler::CaptureHandler, task_handler::TaskHandler};
 use std::env;
 
 use base::{app_data::AppData, event_loop::EventLoop};
@@ -17,14 +17,17 @@ async fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
+    // init app_data
+    let app_data = AppData::new();
+
     // init event loop
     let (event_loop, event_dispatcher) = EventLoop::new();
 
     // init task_handler
-    let task_handler = TaskHandler::new();
+    let capture_handler = CaptureHandler::new();
 
-    // init app_data
-    let app_data = AppData::new();
+    // init task_handler
+    let task_handler = TaskHandler::new();
 
     // construct a local task set that can run `!Send` futures.
     // used for single-threaded runtime (current_thread)
@@ -37,7 +40,8 @@ async fn main() {
                 app_data.clone(),
                 task_handler.clone(),
                 event_loop.clone(),
-                event_dispatcher.clone()
+                event_dispatcher.clone(),
+                capture_handler.clone()
             )
         );
 

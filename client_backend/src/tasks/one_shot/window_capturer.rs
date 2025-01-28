@@ -4,7 +4,6 @@ use tokio::time;
 use windows::{
     Win32::Foundation::*,
     Win32::UI::WindowsAndMessaging::*,
-    Graphics::Capture::*,
 };
 
 use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, task::{Task, TaskMeta}}, core::task_handler::TaskHandler};
