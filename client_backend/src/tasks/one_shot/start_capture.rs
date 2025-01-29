@@ -5,16 +5,17 @@ use crate::{base::{app_data::AppData, event_loop::{EventDispatcher, EventLoop}, 
 use windows::{
     Win32::Foundation::*,
     Win32::System::WinRT::Graphics::Capture::IGraphicsCaptureItemInterop,
+    Win32::System::WinRT::Direct3D11::CreateDirect3D11DeviceFromDXGIDevice,
     Win32::System::WinRT::RoGetActivationFactory,
-    Win32::Graphics::Direct3D11::D3D11CreateDevice,
-    Win32::Graphics::Direct3D11::{ID3D11Device, ID3D11DeviceContext, D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_SDK_VERSION},
+    Win32::Graphics::Direct3D11::{D3D11CreateDevice, ID3D11Device, ID3D11DeviceContext, D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_SDK_VERSION},
     Win32::Graphics::Direct3D::{D3D_DRIVER_TYPE_HARDWARE, D3D_FEATURE_LEVEL},
-    Win32::Graphics::Dxgi::IDXGIAdapter,
+    Win32::Graphics::Dxgi::{IDXGIAdapter, IDXGIDevice},
     Graphics::DirectX::DirectXPixelFormat,
     Graphics::DirectX::Direct3D11::IDirect3DDevice,
     Graphics::Capture,
     Graphics::SizeInt32,
 };
+use windows_core::Interface;
 
 use windows_strings::*;
 
@@ -65,7 +66,7 @@ fn create_capture_item(hwnd: HWND) -> Result<Capture::GraphicsCaptureItem, Box<d
 
 }
 
-fn create_d3d11_device() -> Result<(ID3D11Device, ID3D11DeviceContext), Box<dyn Error>> {
+fn create_d3d11_device() -> Result<(ID3D11Device, IDirect3DDevice, ID3D11DeviceContext), Box<dyn Error>> {
     unsafe {
         let mut device: Option<ID3D11Device> = None;
         let mut context: Option<ID3D11DeviceContext> = None;
@@ -83,7 +84,15 @@ fn create_d3d11_device() -> Result<(ID3D11Device, ID3D11DeviceContext), Box<dyn 
             Some(&mut context),           // Output immediate context
         )?;
 
-        Ok((device.unwrap(), context.unwrap()))
+        let d3d11_device = device.expect("Device is not available");
+
+        // convert ID3D11Device into IDXGIDevice
+        let dxgi_device: IDXGIDevice = d3d11_device.cast()?; // Get DXGI Device
+        // convert IInspectable into IDirect3DDevice
+        let direct3d_device: IDirect3DDevice = CreateDirect3D11DeviceFromDXGIDevice(&dxgi_device)?
+            .cast()?;
+
+        Ok((d3d11_device, direct3d_device, context.unwrap()))
     }
 }
 fn create_frame_pool(d3d_device: &IDirect3DDevice, size: SizeInt32) -> Result<Capture::Direct3D11CaptureFramePool, Box<dyn Error>> {
@@ -118,8 +127,8 @@ async fn start_capture(app_data: Arc<AppData>) {
         };
 
         // create 3d device
-        let (d3d_device, d3d_context) = match create_d3d11_device(){
-            Ok((device, context)) => (device, context),
+        let (d3d11_device, id3d_device, d3d_context) = match create_d3d11_device(){
+            Ok((device11, d3d_device, context)) => (device11, d3d_device, context),
             Err(e) => {
                 log::info!("start capture failed: create_d3d11_device failed: {:?}", e);
                 return;
@@ -127,7 +136,16 @@ async fn start_capture(app_data: Arc<AppData>) {
         };
 
         // create frame pool
-        let frame_pool = create_frame_pool(&d3d_device, capture_item.Size()); 
+        let frame_size = capture_item.Size().expect("Size is not available");
+        let frame_pool = match create_frame_pool(&id3d_device, frame_size){
+            Ok(frame_pool) => frame_pool,
+            Err(e) => {
+                log::info!("start capture failed: create_frame_pool failed: {:?}", e);
+                return;
+            }
+        }; 
+
+        let session = frame_pool.CreateCaptureSession(&capture_item);
 
         /*
         let frame_pool = Direct3D11CaptureFramePool::Create(

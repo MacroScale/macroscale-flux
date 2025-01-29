@@ -7,6 +7,7 @@ edition = "2021"
 dotenv = "0.15.0"
 env_logger = "0.11.6"
 log = "0.4.25"
+windows-core = "0.59.0"
 windows-strings = "0.3.0"
 
 [dependencies.tokio]
@@ -28,6 +29,7 @@ features = [
     "Win32_System_ProcessStatus",
     "Win32_System_SystemInformation",
     "Win32_System_WinRT_Graphics_Capture",
+    "Win32_System_WinRT_Direct3D11",
     "Win32_Graphics_Direct3D",
     "Win32_Graphics_Direct3D11",
     "Win32_Graphics_Dxgi",
