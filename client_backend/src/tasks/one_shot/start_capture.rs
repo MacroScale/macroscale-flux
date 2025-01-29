@@ -145,26 +145,24 @@ async fn start_capture(app_data: Arc<AppData>) {
             }
         }; 
 
-        let session = frame_pool.CreateCaptureSession(&capture_item);
+        let session: Capture::GraphicsCaptureSession = match frame_pool.CreateCaptureSession(&capture_item){
+            Ok(session) => session,
+            Err(e) => {
+                log::info!("start capture failed: CreateCaptureSession failed: {:?}", e);
+                return;
+            }
+        };
 
-        /*
-        let frame_pool = Direct3D11CaptureFramePool::Create(
-            d3d_device, // D3D device
-            DirectXPixelFormat::B8G8R8A8UIntNormalized, // Pixel format
-            2, // Number of frames
-            capture_item.Size(), // Size of the buffers
-        );
-        */
+        match session.StartCapture(){
+            Ok(_) => { log::info!("capture successfully started"); },
+            Err(e) => {
+                log::info!("start capture failed: StartCapture failed: {:?}", e);
+                return;
+            }
+        }
 
-        /*
-           _framePool = Direct3D11CaptureFramePool.Create(
-           _canvasDevice, // D3D device
-           DirectXPixelFormat.B8G8R8A8UIntNormalized, // Pixel format
-           2, // Number of frames
-           _item.Size); // Size of the buffers
-        
-         */
-
+        // set session in app_data
+        AppData::set_capture_session(app_data, Some(session)).await;
     }
 }
 
