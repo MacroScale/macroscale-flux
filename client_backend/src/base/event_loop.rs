@@ -54,8 +54,9 @@ impl EventLoop{
 
     // functions for shared ref
     async fn poll_inbound_events(event_loop: Arc<EventLoop>){
+        let ev_rec_ref = event_loop.reciever.clone();
+
         loop {
-            let ev_rec_ref = event_loop.reciever.clone();
             let mut reciever = ev_rec_ref.lock().await;
 
             while let Some(event) = reciever.recv().await {

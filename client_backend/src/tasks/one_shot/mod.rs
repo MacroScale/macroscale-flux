@@ -3,5 +3,6 @@ pub mod quit_application;
 pub mod register_hotkeys;
 pub mod start_capture;
 pub mod stop_capture;
+pub mod save_session_to_video;
 pub mod check_graphics_capture_session;
 pub mod check_win_version;

@@ -40,9 +40,11 @@ async fn event_handler(app_data: Arc<AppData>, task_handler: Arc<TaskHandler>, e
             EventType::Quit => task_handler.add_task(QuitApplicationTask::new()).await, 
             EventType::StartCapture => task_handler.add_task(StartCaptureTask::new()).await, 
             EventType::StopCapture => task_handler.add_task(StopCaptureTask::new()).await, 
+            EventType::SaveSessionToVideo => task_handler.add_task(StopCaptureTask::new()).await, 
             EventType::LogProcessWindows => task_handler.add_task(LogProcessWindowsTask::new()).await, 
 
             // could not implement a one-shot task for these events, hwnd cannot be sent across threads
+            // TODO: i probably can do this, i will look into this later
             EventType::ChangeForegroundProcessHWND(data) => AppData::set_current_hwnd(app_data.clone(), data.hwnd).await,
             EventType::ChangeGameProcessHWND(data) => AppData::set_game_hwnd(app_data.clone(), data.hwnd).await,
         }

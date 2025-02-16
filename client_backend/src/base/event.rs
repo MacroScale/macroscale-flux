@@ -11,6 +11,7 @@ pub enum EventType {
     Quit,
     StartCapture,
     StopCapture,
+    SaveSessionToVideo,
     LogProcessWindows,
     ChangeForegroundProcessHWND(ChangeForegroundWindowData),
     ChangeGameProcessHWND(ChangeGameWindowData),
