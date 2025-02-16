@@ -76,7 +76,6 @@ void TaskHandler::cleanHandles() {
     }
 }
 
-
 void TaskHandler::AddTask(Task& t){
     std::ostringstream oss;
     oss << "adding task: " << t.GetName();

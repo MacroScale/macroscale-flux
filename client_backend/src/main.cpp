@@ -8,18 +8,15 @@
 void initNvfbc(){
 }
 
-
 int main() {
     SLOG.info("starting program");
 
     EventLoop *event_loop_inst = EventLoop::Instance();
     TaskHandler *task_handler_inst = TaskHandler::Instance();
 
-
     // start core systems 
     std::thread event_thread(&EventLoop::Start, event_loop_inst);
     std::thread task_thread(&TaskHandler::Start, task_handler_inst);
-
 
     // create initial tasks
     Tasks::RegisterHotKeys hotkey_task;
