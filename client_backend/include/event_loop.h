@@ -9,10 +9,10 @@ enum Event{};
 class EventLoop {
 
 public:
-    static EventLoop* instance();
-    void start();
-    void add_event(Event e);
-    void end();
+    static EventLoop* Instance();
+    void Start();
+    void AddEvent(Event e);
+    void End();
 
 private:
     // Static pointer to the Singleton instance

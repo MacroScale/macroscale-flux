@@ -34,6 +34,7 @@ configure_file(include/config.h.in config.h)
 add_executable(capture 
     src/main.cpp
     src/core/event_loop.cpp
+    src/core/task_handler.cpp
     src/tasks/register_hotkeys.cpp
 )
 
