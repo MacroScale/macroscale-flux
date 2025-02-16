@@ -24,11 +24,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++
 # set output dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+# include headers 
+include_directories(include)
+
 # NvFBC library link
-include_directories(libs/NvFBC/inc)
+include_directories(vendor/NvFBC/inc)
 
 configure_file(include/config.h.in config.h)
-add_executable(capture src/main.cpp)
+add_executable(capture 
+    src/main.cpp
+    src/core/event_loop.cpp
+    src/tasks/register_hotkeys.cpp
+)
 
 # includes for binary
 target_include_directories(capture PUBLIC "${PROJECT_BINARY_DIR}")
