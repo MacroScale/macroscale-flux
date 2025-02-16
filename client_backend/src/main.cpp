@@ -1,8 +1,7 @@
 #include <iostream>
-#include "libs/NvFBC/inc/NvFBC.h"
+#include "NvFBC.h"
 
 void initNvfbc(){
-    
     std::cout << "initialised NvFBC successfully";
 }
 

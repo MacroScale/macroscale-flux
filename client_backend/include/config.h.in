@@ -1,0 +1,3 @@
+// the configured options and settings for macroscale_game_capture 
+#define macroscale_game_capture_VERSION_MAJOR @macroscale_game_capture_VERSION_MAJOR@
+#define macroscale_game_capture_VERSION_MINOR @macroscale_game_capture_VERSION_MINOR@

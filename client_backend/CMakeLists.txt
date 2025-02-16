@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(macroscale_game_capture VERSION 0.1)
+
+# set cpp standard 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# needed so that lsp can verify include locations
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# set the target system name
+set(CMAKE_SYSTEM_NAME Windows)
+
+# Set the target architecture
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+
+# Specify the cross compiler
+set(CMAKE_C_COMPILER /usr/bin/x86_64-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/x86_64-w64-mingw32-g++)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+
+# set output dir
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# NvFBC library link
+include_directories(libs/NvFBC/inc)
+
+configure_file(include/config.h.in config.h)
+add_executable(capture src/main.cpp)
+
+# includes for binary
+target_include_directories(capture PUBLIC "${PROJECT_BINARY_DIR}")
