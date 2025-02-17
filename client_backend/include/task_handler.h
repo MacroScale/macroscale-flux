@@ -1,6 +1,7 @@
 #ifndef TASK_HANDLER_H
 #define TASK_HANDLER_H
 
+#include <atomic>
 #include <tasks.h>
 #include <mutex>
 #include <thread>
@@ -20,9 +21,14 @@ private:
     static TaskHandler* instancePtr;
     static std::mutex instMutex;
 
+    struct TaskThreadHandle {
+        std::thread tThread; 
+        std::atomic<bool>* complete;
+    };
+
     bool running;
     std::vector<Task*> tasksBuf;
-    std::vector<std::thread> taskHandles;
+    std::vector<TaskThreadHandle> taskHandles;
     std::map<std::thread::id, std::string> threadNames;
     std::mutex tasksBufMutex;
     std::mutex taskHandlesMutex;

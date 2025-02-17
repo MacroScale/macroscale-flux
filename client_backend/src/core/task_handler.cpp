@@ -1,5 +1,6 @@
 #include "task_handler.h"
 #include "logger.h"
+#include <atomic>
 #include <cstdio>
 #include <mutex>
 #include <vector>
@@ -41,6 +42,8 @@ void TaskHandler::Start(){
 
         // clear handles of completed tasks
         this->cleanHandles();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     SLOG.info("task handler exiting");
@@ -50,27 +53,44 @@ void TaskHandler::runTask(Task* t){
     std::ostringstream oss;
     oss << "task handler: executing " << t->GetName();
     SLOG.info(oss.str());
+
+    // Create a flag to track whether the task has completed
+    std::atomic<bool> complete(false);
     
-    std::thread tThread(&Task::Execute, t);
+    std::thread tThread([t, &complete]() {
+        try {
+            t->Execute();
+            complete.store(true);  // mark the task as finished
+        } catch (const std::exception& e){
+            std::ostringstream oss;
+            oss << "exception (" << t->GetName( ) << "): " << e.what();
+            SLOG.error(oss.str());
+        } catch (...){
+            std::ostringstream oss;
+            oss << "unknown exception for task: " << t->GetName();
+            SLOG.error(oss.str());
+        }
+    });
 
     {
         lock_guard<std::mutex> lock(taskHandlesMutex);
         lock_guard<std::mutex> lock2(threadNamesMutex);
 
         threadNames[tThread.get_id()] = t->GetName();
-        taskHandles.push_back(std::move(tThread));
+        taskHandles.push_back({std::move(tThread), &complete});
     }
 }
 
 void TaskHandler::cleanHandles() {
     std::lock_guard<std::mutex> lock(taskHandlesMutex);
     for (auto it = taskHandles.begin(); it != taskHandles.end(); ){
-        if (it->joinable()) {
+        if (it->complete->load()) {
+
             std::ostringstream oss;
-            oss << "task handler: completed " << threadNames[it->get_id()];
+            oss << "task handler: completed " << threadNames[it->tThread.get_id()];
             SLOG.info(oss.str());
 
-            it->join(); 
+            it->tThread.join(); 
             it = taskHandles.erase(it);
         } else { ++it; }
     }

@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "task_handler.h"
 #include "tasks.h"
+#include <windows.h>
 
 void initNvfbc(){
 }
@@ -19,10 +20,10 @@ int main() {
     std::thread task_thread(&TaskHandler::Start, task_handler_inst);
 
     // create initial tasks
-    Tasks::RegisterHotKeys hotkey_task;
+    Tasks::PollHotkeys poll_hotkeys_task;
 
     // add tasks to task handler
-    task_handler_inst->AddTask(hotkey_task);
+    task_handler_inst->AddTask(poll_hotkeys_task);
 
     event_thread.join();
     task_thread.join();

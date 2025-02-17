@@ -1,17 +1,16 @@
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
 
+#include "event_data.h"
 #include <mutex>
 #include <vector>
-
-enum Event{};
 
 class EventLoop {
 
 public:
     static EventLoop* Instance();
     void Start();
-    void AddEvent(Event e);
+    void AddEvent(Event& e);
     void End();
 
 private:

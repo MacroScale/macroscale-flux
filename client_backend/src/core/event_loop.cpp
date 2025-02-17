@@ -1,6 +1,7 @@
 #include "event_loop.h"
 #include "logger.h"
 #include <mutex>
+#include <thread>
 #include <vector>
 
 EventLoop *EventLoop::instancePtr = NULL; 
@@ -20,26 +21,30 @@ void EventLoop::Start(){
     this->running = true;
     SLOG.info("event loop started");
     
-    std::vector<Event> locEventBatch; 
     while(this->running){
+
         { 
             std::lock_guard<std::mutex> lock(this->eventBufMutex);
             if (!this->eventBuf.empty()) {
-                locEventBatch = std::move(this->eventBuf);
+                for (Event &e: this->eventBuf){
+                    cout << "processing event: " << e.GetEventType() << endl;
+                } 
                 this->eventBuf.clear();
             }
         }
 
-        for (Event e: locEventBatch){
-            // process Event 
-        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     SLOG.info("event loop exiting");
 }
 
-void EventLoop::AddEvent(Event e){
-    SLOG.info("adding event: TODO");
+void EventLoop::AddEvent(Event& e) {
+
+    std::ostringstream oss;
+    oss << "event loop: event push: " << e.GetEventType();
+    SLOG.info(oss.str());
+
     std::lock_guard<std::mutex> lock(this->eventBufMutex);
     this->eventBuf.push_back(e);
 }

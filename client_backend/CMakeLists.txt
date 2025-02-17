@@ -35,7 +35,7 @@ add_executable(capture
     src/main.cpp
     src/core/event_loop.cpp
     src/core/task_handler.cpp
-    src/tasks/register_hotkeys.cpp
+    src/tasks/poll_hotkeys.cpp
 )
 
 # includes for binary

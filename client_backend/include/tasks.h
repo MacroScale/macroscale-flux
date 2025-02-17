@@ -13,12 +13,23 @@ public:
     std::string GetName() { return name; };
     void SetName(std::string name) { this->name = name; };
     virtual void Execute() = 0;
+    void SetRunning(bool running) { this->running = running; };
+    bool GetRunning() { return this->running; };
+private:
+    int running;
 };
 
 namespace Tasks {
 
-    class RegisterHotKeys : public Task { public: RegisterHotKeys(); void Execute() override; }; 
-    
+    // oneshot
+    //... 
+    // Polls 
+    class PollHotkeys: public Task {
+        public: 
+            PollHotkeys(); 
+            void Execute() override; 
+    }; 
+
 }
 
 #endif
