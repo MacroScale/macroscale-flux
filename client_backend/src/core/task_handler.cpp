@@ -11,10 +11,8 @@ std::mutex TaskHandler::instMutex;
 
 TaskHandler* TaskHandler::Instance() {
     if (instancePtr == nullptr) {
-        if (instancePtr == nullptr) {
-            std::lock_guard<std::mutex> lock(instMutex);
-            instancePtr = new TaskHandler();
-        }
+        std::lock_guard<std::mutex> lock(instMutex);
+        instancePtr = new TaskHandler();
     }
     return instancePtr;
 }

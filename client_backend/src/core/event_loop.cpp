@@ -9,10 +9,8 @@ std::mutex EventLoop::instMutex;
 
 EventLoop* EventLoop::Instance() {
     if (instancePtr == nullptr) {
-        if (instancePtr == nullptr) {
-            std::lock_guard<std::mutex> lock(instMutex);
-            instancePtr = new EventLoop();
-        }
+        std::lock_guard<std::mutex> lock(instMutex);
+        instancePtr = new EventLoop();
     }
     return instancePtr;
 }
@@ -27,7 +25,9 @@ void EventLoop::Start(){
             std::lock_guard<std::mutex> lock(this->eventBufMutex);
             if (!this->eventBuf.empty()) {
                 for (Event &e: this->eventBuf){
-                    cout << "processing event: " << e.GetEventType() << endl;
+                    std::ostringstream oss;
+                    oss << "processing event: " << e.GetEventType();
+                    SLOG.info(oss.str());
                 } 
                 this->eventBuf.clear();
             }

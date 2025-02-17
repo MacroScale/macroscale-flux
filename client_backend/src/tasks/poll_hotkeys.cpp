@@ -34,7 +34,6 @@ void Tasks::PollHotkeys::Execute(){
                     .vk = static_cast<int>(msg.lParam)
                 };
                 Event e(EventType::HOTKEY, data);
-                cout << "event type: " << e.GetEventType() << endl;
                 evInst->AddEvent(e);
             }
         } 
