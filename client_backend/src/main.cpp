@@ -1,10 +1,12 @@
 #include <thread>
 #include "NvFBC.h"
+#include "application_data.h"
 #include "event_loop.h"
 #include "logger.h"
 #include "task_handler.h"
 #include "tasks.h"
 #include <windows.h>
+
 
 void initNvfbc(){
 }

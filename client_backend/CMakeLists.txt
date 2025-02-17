@@ -35,6 +35,7 @@ add_executable(capture
     src/main.cpp
     src/core/event_loop.cpp
     src/core/task_handler.cpp
+    src/core/application_data.cpp
     src/tasks/poll_hotkeys.cpp
 )
 

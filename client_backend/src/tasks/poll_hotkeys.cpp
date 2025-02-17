@@ -15,12 +15,27 @@ void Tasks::PollHotkeys::Execute(){
 
     // register hotkeys
     std::ostringstream oss;
+    bool status;
 
-    bool status = RegisterHotKey(NULL, 1, MOD_ALT, 'Q'); 
+    status = RegisterHotKey(NULL, 1, MOD_ALT, 'Q'); 
     oss << "registered quit hotkey: ALT + Q: " << status;
     SLOG.info(oss.str());
-    oss.clear();
+    oss.str("");
 
+    status = RegisterHotKey(NULL, 2, MOD_ALT, 'R'); 
+    oss << "registered start capture hotkey: ALT + R: " << status;
+    SLOG.info(oss.str());
+    oss.str("");
+
+    status = RegisterHotKey(NULL, 3, MOD_ALT, 'E'); 
+    oss << "registered stop capture hotkey: ALT + E: " << status;
+    SLOG.info(oss.str());
+    oss.str("");
+
+    status = RegisterHotKey(NULL, 4, MOD_ALT, 'W'); 
+    oss << "registered log processes hotkey: ALT + W: " << status;
+    SLOG.info(oss.str());
+    oss.str("");
 
     EventLoop* evInst = EventLoop::Instance(); 
 
@@ -30,8 +45,8 @@ void Tasks::PollHotkeys::Execute(){
             if (msg.message == WM_HOTKEY) {
                 EventData data; 
                 data.hotkeyData = HotKeyData {
-                    .modfn = static_cast<int>(msg.wParam),
-                    .vk = static_cast<int>(msg.lParam)
+                    .id = static_cast<int>(msg.wParam),
+                    .vks = static_cast<int>(msg.lParam)
                 };
                 Event e(EventType::HOTKEY, data);
                 evInst->AddEvent(e);

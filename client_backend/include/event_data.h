@@ -10,8 +10,8 @@ enum EventType {
 };
 
 struct HotKeyData {
-    int modfn;
-    int vk;
+    int id;
+    int vks;
 };
 
 union EventData{
@@ -21,7 +21,9 @@ union EventData{
 class Event {
 public:
     Event(EventType type, EventData data): eventType(type), eventData(data){};
-    std::string GetEventType(){ 
+    EventType GetEventType(){ return this->eventType; };
+    EventData GetEventData(){ return this->eventData; };
+    std::string GetEventTypeStr(){ 
         switch(this->eventType){
             case HOTKEY: 
                 return "Hotkey";

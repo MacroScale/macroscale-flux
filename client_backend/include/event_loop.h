@@ -11,6 +11,7 @@ public:
     static EventLoop* Instance();
     void Start();
     void AddEvent(Event& e);
+    void ProcessEvent(Event& e);
     void End();
 
 private:
