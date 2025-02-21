@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(macroscale_game_capture VERSION 0.1)
+project(macroscale_flux VERSION 0.1)
 
 # set cpp standard 
 set(CMAKE_CXX_STANDARD 20)

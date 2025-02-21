@@ -1,4 +1,4 @@
-# MacroScale Game Capture (DEVELOPMENT NAME)
+# MacroScale Flux
 
 ## Overview
 An application designed to capture past n seconds of gameplay and upload it to 
