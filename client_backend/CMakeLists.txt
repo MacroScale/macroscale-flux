@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(macroscale_game_capture VERSION 0.1)
 
 # set cpp standard 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # needed so that lsp can verify include locations
@@ -36,6 +36,7 @@ add_executable(capture
     src/core/event_loop.cpp
     src/core/task_handler.cpp
     src/core/application_data.cpp
+    src/core/capturer.cpp
     src/tasks/poll_hotkeys.cpp
 )
 

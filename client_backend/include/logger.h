@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-using namespace std;
 
 // Enum to represent log levels
 enum LogLevel { DEBUG, INFO, WARNING, ERROR, CRITICAL };
@@ -14,12 +13,12 @@ enum LogLevel { DEBUG, INFO, WARNING, ERROR, CRITICAL };
 class Logger {
 public:
     // Constructor: Opens the log file in append mode
-    static Logger& instance(const string& filename)
+    static Logger& instance(const std::string& filename)
     {
         static Logger inst;
-        inst.logFile.open(filename, ios::app);
+        inst.logFile.open(filename, std::ios::app);
         if (!inst.logFile.is_open()) {
-            cerr << "Error opening log file." << endl;
+            std::cerr << "Error opening log file." << std::endl;
         }
         return inst; 
     }
@@ -28,7 +27,7 @@ public:
     ~Logger() { logFile.close(); }
 
     // Logs a message with a given log level
-    void log(LogLevel level, const string& message) {
+    void log(LogLevel level, const std::string& message) {
         // Get current timestamp
         time_t now = time(0);
         tm* timeinfo = localtime(&now);
@@ -36,13 +35,13 @@ public:
         strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", timeinfo);
 
         // Create log entry
-        ostringstream logEntry;
+        std::ostringstream logEntry;
         logEntry << "[" << timestamp << "] "
                  << levelToString(level) << ": " << message
-                 << endl;
+                 << std::endl;
 
         // Output to console
-        cout << logEntry.str();
+        std::cout << logEntry.str();
 
         // Output to log file
         if (logFile.is_open()) {
@@ -52,10 +51,10 @@ public:
         }
     }
 
-    void info(const string& message){
+    void info(const std::string& message){
         log(INFO, message);
     }
-    void error(const string& message){
+    void error(const std::string& message){
         log(ERROR, message);
     }
 
@@ -63,9 +62,9 @@ public:
 private:
     Logger() = default;
 
-    ofstream logFile; 
+    std::ofstream logFile; 
 
-    string levelToString(LogLevel level)
+    std::string levelToString(LogLevel level)
     {
         switch (level) {
         case DEBUG: return "DEBUG";

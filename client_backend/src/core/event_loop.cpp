@@ -44,26 +44,26 @@ void EventLoop::ProcessEvent(Event& e) {
         EventData ed = e.GetEventData();
         int id = ed.hotkeyData.id;
         if (id == 1) { 
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "eventloop: quit application";
             SLOG.info(oss.str());
             // TODO: need to shutdown and clean thread handles for 
             // all systems gracefully
             exit(1); 
         } else if (id == 2) { 
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "eventloop: start capture";
             SLOG.info(oss.str());
         } else if (id == 3) { 
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "eventloop: stop capture";
             SLOG.info(oss.str());
         } else if (id == 4) { 
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "eventloop: log processes";
             SLOG.info(oss.str());
         } else {
-            ostringstream oss;
+            std::ostringstream oss;
             oss << "unhandled hotkey id: " << id;
             SLOG.info(oss.str());
         }

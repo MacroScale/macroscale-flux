@@ -5,7 +5,6 @@
 #include "logger.h"
 #include "task_handler.h"
 #include "tasks.h"
-#include <windows.h>
 
 
 void initNvfbc(){

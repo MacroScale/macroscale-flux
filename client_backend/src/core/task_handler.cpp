@@ -5,6 +5,7 @@
 #include <mutex>
 #include <vector>
 #include <map>
+#include <thread>
 
 TaskHandler *TaskHandler::instancePtr = NULL; 
 std::mutex TaskHandler::instMutex; 
@@ -71,8 +72,8 @@ void TaskHandler::runTask(Task* t){
     });
 
     {
-        lock_guard<std::mutex> lock(taskHandlesMutex);
-        lock_guard<std::mutex> lock2(threadNamesMutex);
+        std::lock_guard<std::mutex> lock(taskHandlesMutex);
+        std::lock_guard<std::mutex> lock2(threadNamesMutex);
 
         threadNames[tThread.get_id()] = t->GetName();
         taskHandles.push_back({std::move(tThread), &complete});
