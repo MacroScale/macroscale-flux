@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.40)
 
 project(macroscale_flux VERSION 0.1)
 
@@ -27,11 +27,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # include headers 
 include_directories(include)
 
-# NvFBC library link
-include_directories(vendor/NvFBC/inc)
-
 configure_file(include/config.h.in config.h)
-add_executable(capture 
+add_executable(captureInterface
     src/main.cpp
     src/core/event_loop.cpp
     src/core/task_handler.cpp
@@ -40,5 +37,8 @@ add_executable(capture
     src/tasks/poll_hotkeys.cpp
 )
 
+target_sources(captureInterface PRIVATE captureInterface.manifest)
+
 # includes for binary
-target_include_directories(capture PUBLIC "${PROJECT_BINARY_DIR}")
+target_link_libraries(captureInterface PRIVATE oleaut32 runtimeobject)
+target_include_directories(captureInterface PUBLIC "${PROJECT_BINARY_DIR}")

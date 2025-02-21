@@ -9,7 +9,7 @@ class Capturer {
 
 public:
     static Capturer& Instance();
-    void Init();
+    bool Init();
     void Capture();
 
     void StartCapture();
@@ -29,13 +29,9 @@ private:
     winrt::Windows::Graphics::Capture::GraphicsCaptureItem* item;
     winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool* framePool;
     winrt::Windows::Graphics::Capture::GraphicsCaptureSession* session;
-
-    Capturer() {
-        item = nullptr;
-        framePool = nullptr;
-        session = nullptr;
-    }
     
+    Capturer(){}
+
     // deleting the copy constructor to prevent copies
     Capturer(const Capturer& obj) = delete;
     void operator=(Capturer const&) = delete;
