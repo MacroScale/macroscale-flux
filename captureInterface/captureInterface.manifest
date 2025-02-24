@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-    <applications>
-        <Application xmlns="urn:schemas-microsoft-com:asm.v3">
-            <Capabilities>
-                <DeviceCapability Name="graphicsCapture" />
-            </Capabilities>
-        </Application>
-    </applications>
+  <assemblyIdentity version="1.0.0.0" processorArchitecture="amd64" name="captureInterface" type="win32"/>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges>
+        <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
+      </requestedPrivileges>
+      <capabilities xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10">
+        <capability name="graphicsCapture"/>
+      </capabilities>
+    </security>
+  </trustInfo>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
+      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a69963a}"/>
+      <supportedOS Id="{35138b9a-5d96-4fbd-8f88-5e3a2600825a}"/>
+      <supportedOS Id="{92bc92be-525b-4a7e-94ff-0e8d5a525c80}"/>
+    </application>
+  </compatibility>
 </assembly>
