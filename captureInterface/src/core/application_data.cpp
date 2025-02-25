@@ -9,16 +9,12 @@ AppData& AppData::Instance(){
 };
 
 
-std::unordered_map<HWND, std::string>& AppData::GetFGWins(){
-    return APPDATA.fgWins;
-};
-
-void AppData::SetFGWins(std::unordered_map<HWND, std::string>&& wins){
-    APPDATA.fgWins = std::move(wins);
-};
-
-
-std::pair<HWND, std::string> AppData::GetCurrentGWin(){
-    return APPDATA.currentGameWin;
+std::pair<HWND, std::string> AppData::GetCurrentGameWin(){
+    return currentGameWin;
 }
+
+void AppData::SetGameWin(HWND hwnd, std::string title){
+    currentGameWin = std::pair<HWND, std::string>(hwnd, title);
+}
+
 

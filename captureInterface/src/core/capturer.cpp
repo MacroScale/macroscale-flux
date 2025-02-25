@@ -1,7 +1,6 @@
 #include "capturer.h"
 
-bool Capturer::Init(){
-    return winrt::Windows::Graphics::Capture::GraphicsCaptureSession::IsSupported();
+void Capturer::Init(){
 };
 
 Capturer& Capturer::Instance(){

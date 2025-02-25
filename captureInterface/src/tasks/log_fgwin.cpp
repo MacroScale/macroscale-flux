@@ -2,6 +2,7 @@
 #include "event_loop.h"
 #include "logger.h"
 #include "tasks.h"
+#include "utils.h"
 
 #include <string>
 #include <unordered_map>
@@ -14,7 +15,7 @@ Tasks::LogFGWins::LogFGWins() {
 void Tasks::LogFGWins::Execute(){
     this->SetRunning(true); 
 
-    std::unordered_map<HWND, std::string> fgWins = APPDATA.GetFGWins();
+    std::unordered_map<HWND, std::string> fgWins = Utils::GetFgWins();
     std::string titles = "[";
 
     for (auto &el: fgWins){

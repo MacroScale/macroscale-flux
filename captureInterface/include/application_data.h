@@ -3,23 +3,20 @@
 
 #include <mutex>
 #include <string>
-#include <unordered_map>
 #include <windef.h>
 
 class AppData {
 
 public:
     static AppData& Instance();
-    std::unordered_map<HWND, std::string>& GetFGWins();
-    void SetFGWins(std::unordered_map<HWND, std::string>&& wins);
-    std::pair<HWND, std::string> GetCurrentGWin();
+    void SetGameWin(HWND hwnd, std::string title);
+    std::pair<HWND, std::string> GetCurrentGameWin();
 
 private:
     // Static pointer to the Singleton instance
     static AppData* instancePtr;
     static std::mutex instMutex;
 
-    std::unordered_map<HWND, std::string> fgWins;
     std::pair<HWND, std::string> currentGameWin;
 
     bool hasInit = false;

@@ -1,6 +1,8 @@
 #include "application_data.h"
 #include "event_loop.h"
+#include "logger.h"
 #include "tasks.h"
+#include "utils.h"
 
 #include <thread>
 #include <unordered_map>
@@ -10,36 +12,34 @@ Tasks::PollFGWin::PollFGWin() {
     this->SetName("PollFGWin"); 
 }
 
-
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
-	char class_name[80];
-	char title[80];
-	GetClassName(hwnd,class_name, sizeof(class_name));
-	GetWindowText(hwnd,title,sizeof(title));
-
-    std::unordered_map<HWND, std::string>* titles = 
-        reinterpret_cast<std::unordered_map<HWND, std::string>*>(lParam);
-
-    if (strlen(title) > 0){
-        titles->insert({hwnd, title});
-    }
-
-	return TRUE;
-}
-
 void Tasks::PollFGWin::Execute(){
     this->SetRunning(true);
 
     EventLoop* evInst = EventLoop::Instance(); 
 
-    std::unordered_map<HWND, std::string> fgWins;
-
     while(this->GetRunning()){
-        EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&fgWins));
+        std::unordered_map<HWND, std::string> fgWins = Utils::GetFgWins();
 
-        if (APPDATA.GetFGWins() != fgWins) APPDATA.SetFGWins(std::move(fgWins));
+        // skip processing if current game window hwnd is alive 
+        if (IsWindow(APPDATA.GetCurrentGameWin().first)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            continue;
+        }
+        
+        // TODO: move into util for checking if hwnd is game
+        for (auto &win: fgWins){
+            std::string filePath = Utils::filepathHWND(win.first);
+            std::size_t found = filePath.find("steamapps");
 
-        fgWins.clear();
+            if (found != std::string::npos){
+                std::ostringstream oss;
+                oss << "game window detected: " << win.second << " path: " << filePath;
+                SLOG.info(oss.str());
+                APPDATA.SetGameWin(win.first, win.second);
+            }
+
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 

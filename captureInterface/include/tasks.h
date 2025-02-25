@@ -38,11 +38,6 @@ namespace Tasks {
             PollFGWin(); 
             void Execute() override; 
     }; 
-    class PollGameWin: public Task {
-        public: 
-            PollGameWin(); 
-            void Execute() override; 
-    }; 
 }
 
 #endif

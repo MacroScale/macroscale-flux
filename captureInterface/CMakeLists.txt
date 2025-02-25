@@ -53,7 +53,6 @@ add_executable(captureInterface
     src/core/capturer.cpp
     src/tasks/poll_hotkeys.cpp
     src/tasks/poll_fgwin.cpp
-    src/tasks/poll_gamewin.cpp
     src/tasks/log_fgwin.cpp
     "${CMAKE_BINARY_DIR}/captureInterface.res" # Link the resource file
 )
