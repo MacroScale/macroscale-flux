@@ -20,7 +20,9 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
     std::unordered_map<HWND, std::string>* titles = 
         reinterpret_cast<std::unordered_map<HWND, std::string>*>(lParam);
 
-    titles->insert({hwnd, title});
+    if (strlen(title) > 0){
+        titles->insert({hwnd, title});
+    }
 
 	return TRUE;
 }
