@@ -32,7 +32,9 @@ RUN git clone https://aur.archlinux.org/yay.git && \
 RUN yay -S --noconfirm mingw-w64-cppwinrt
 
 RUN yay -S --noconfirm clang \
-    mingw-w64-x86_64-clang
+    mingw-w64-x86_64-clang \
+# contains dbghelp lib for mini dumps
+    mingw-w64-winpthreads 
 
 # download and install cmake 4.0.0 prerelease (has manifest support)
 # RUN curl -L https://github.com/Kitware/CMake/releases/download/v4.0.0-rc1/cmake-4.0.0-rc1-linux-x86_64.tar.gz -o cmake.tar.gz && \

@@ -2,6 +2,8 @@
 #define TASK_HANDLER_H
 
 #include <atomic>
+#include <memory>
+#include <queue>
 #include <tasks.h>
 #include <mutex>
 #include <thread>
@@ -14,7 +16,8 @@ public:
     static TaskHandler* Instance();
     void Start();
     void End();
-    void AddTask(Task& t);
+    // use move on this function
+    void AddTask(std::unique_ptr<Task> t);
 
 private:
     // Static pointer to the Singleton instance
@@ -23,20 +26,20 @@ private:
 
     struct TaskThreadHandle {
         std::thread tThread; 
-        std::atomic<bool>* complete;
+        std::shared_ptr<std::atomic<bool>> complete;
+        std::string tTitle;
     };
 
     bool running;
-    std::vector<Task*> tasksBuf;
-    std::vector<TaskThreadHandle> taskHandles;
-    std::map<std::thread::id, std::string> threadNames;
+    std::queue<std::unique_ptr<Task>> tasksBuf;
+    std::vector<std::unique_ptr<TaskThreadHandle>> taskHandles;
     std::mutex tasksBufMutex;
     std::mutex taskHandlesMutex;
     std::mutex threadNamesMutex;
 
     TaskHandler(){};
 
-    void runTask(Task* t);
+    void runTask(std::unique_ptr<Task> t);
     void cleanHandles();
     
     // deleting the copy constructor to prevent copies

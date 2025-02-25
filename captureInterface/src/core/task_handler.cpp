@@ -1,10 +1,8 @@
 #include "task_handler.h"
 #include "logger.h"
 #include <atomic>
-#include <cstdio>
 #include <mutex>
 #include <vector>
-#include <map>
 #include <thread>
 
 TaskHandler *TaskHandler::instancePtr = NULL; 
@@ -22,21 +20,17 @@ void TaskHandler::Start(){
     this->running = true;
     SLOG.info("task handler loop started");
 
-    std::vector<Task*> locTaskBatch; 
     while(this->running){
-        locTaskBatch.clear();
 
         { 
             std::lock_guard<std::mutex> lock(this->tasksBufMutex);
-            if (!this->tasksBuf.empty()) {
-                locTaskBatch = std::move(tasksBuf);
-                tasksBuf.clear();
-            }
-        }
-
-        // begin execution of tasks
-        for (Task* t: locTaskBatch){
-            this->runTask(t);
+            // begin execution of tasks
+            while (!tasksBuf.empty())
+            {
+                std::unique_ptr<Task> task = std::move(tasksBuf.front());
+                tasksBuf.pop(); 
+                this->runTask(std::move(task)); 
+            } 
         }
 
         // clear handles of completed tasks
@@ -48,59 +42,57 @@ void TaskHandler::Start(){
     SLOG.info("task handler exiting");
 }
 
-void TaskHandler::runTask(Task* t){
+void TaskHandler::runTask(std::unique_ptr<Task> t) {
+
     std::ostringstream oss;
     oss << "task handler: executing " << t->GetName();
     SLOG.info(oss.str());
 
-    // Create a flag to track whether the task has completed
-    std::atomic<bool> complete(false);
-    
-    std::thread tThread([t, &complete]() {
-        try {
-            t->Execute();
-            complete.store(true);  // mark the task as finished
-        } catch (const std::exception& e){
-            std::ostringstream oss;
-            oss << "exception (" << t->GetName( ) << "): " << e.what();
-            SLOG.error(oss.str());
-        } catch (...){
-            std::ostringstream oss;
-            oss << "unknown exception for task: " << t->GetName();
-            SLOG.error(oss.str());
-        }
+    auto handle = std::make_unique<TaskThreadHandle>();
+    handle->tTitle = t->GetName();
+    handle->complete = std::make_shared<std::atomic<bool>>(false);
+
+    std::thread tThread([task = std::move(t), complete = handle->complete]() {
+        task->Execute();
+        complete->store(true); 
     });
+
+    handle->tThread = std::move(tThread);
 
     {
         std::lock_guard<std::mutex> lock(taskHandlesMutex);
-        std::lock_guard<std::mutex> lock2(threadNamesMutex);
-
-        threadNames[tThread.get_id()] = t->GetName();
-        taskHandles.push_back({std::move(tThread), &complete});
+        taskHandles.push_back(std::move(handle));
     }
 }
 
 void TaskHandler::cleanHandles() {
     std::lock_guard<std::mutex> lock(taskHandlesMutex);
-    for (auto it = taskHandles.begin(); it != taskHandles.end(); ){
-        if (it->complete->load()) {
 
+    for (auto it = taskHandles.begin(); it != taskHandles.end();){
+        if ((*it)->complete->load()) { 
             std::ostringstream oss;
-            oss << "task handler: completed " << threadNames[it->tThread.get_id()];
+            oss << "task handler: completed " << (*it)->tTitle;
             SLOG.info(oss.str());
 
-            it->tThread.join(); 
+            if ((*it)->tThread.joinable()) {
+                (*it)->tThread.join(); 
+            }
+
             it = taskHandles.erase(it);
         } else { ++it; }
     }
 }
 
-void TaskHandler::AddTask(Task& t){
+void TaskHandler::AddTask(std::unique_ptr<Task> t){
     std::ostringstream oss;
-    oss << "adding task: " << t.GetName();
+    oss << "adding task: " << t->GetName();
+
     SLOG.info(oss.str());
-    std::lock_guard<std::mutex> lock(this->tasksBufMutex);
-    this->tasksBuf.push_back(&t);
+
+    {
+        std::lock_guard<std::mutex> lock(this->tasksBufMutex);
+        this->tasksBuf.push(std::move(t));
+    }
 }
 
 void TaskHandler::End(){ this->running = false; }

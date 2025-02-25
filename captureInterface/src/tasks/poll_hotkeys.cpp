@@ -3,6 +3,8 @@
 #include "logger.h"
 #include "tasks.h"
 
+#include <sstream>
+#include <strstream>
 #include <thread>
 #include <windows.h>
 
@@ -14,28 +16,35 @@ void Tasks::PollHotkeys::Execute(){
     this->SetRunning(true);
 
     // register hotkeys
-    std::ostringstream oss;
     bool status;
 
     status = RegisterHotKey(NULL, 1, MOD_ALT, 'Q'); 
-    oss << "registered quit hotkey: ALT + Q: " << status;
-    SLOG.info(oss.str());
-    oss.str("");
+    {
+        std::ostringstream oss;
+        oss << "registered quit hotkey: ALT + Q: " << status;
+        SLOG.info(oss.str());
+    }
 
     status = RegisterHotKey(NULL, 2, MOD_ALT, 'R'); 
-    oss << "registered start capture hotkey: ALT + R: " << status;
-    SLOG.info(oss.str());
-    oss.str("");
+    {
+        std::ostringstream oss;
+        oss << "registered start capture hotkey: ALT + R: " << status;
+        SLOG.info(oss.str());
+    }
 
     status = RegisterHotKey(NULL, 3, MOD_ALT, 'E'); 
-    oss << "registered stop capture hotkey: ALT + E: " << status;
-    SLOG.info(oss.str());
-    oss.str("");
+    {
+        std::ostringstream oss;
+        oss << "registered stop capture hotkey: ALT + E: " << status;
+        SLOG.info(oss.str());
+    }
 
     status = RegisterHotKey(NULL, 4, MOD_ALT, 'W'); 
-    oss << "registered log processes hotkey: ALT + W: " << status;
-    SLOG.info(oss.str());
-    oss.str("");
+    {
+        std::ostringstream oss;
+        oss << "registered log processes hotkey: ALT + W: " << status;
+        SLOG.info(oss.str());
+    }
 
     EventLoop* evInst = EventLoop::Instance(); 
 
@@ -57,4 +66,3 @@ void Tasks::PollHotkeys::Execute(){
 
     this->SetRunning(false);
 }
-

@@ -21,6 +21,14 @@ set(CMAKE_CXX_COMPILER /usr/bin/x86_64-w64-mingw32-g++)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
 
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_FLAGS_DEBUG "-g") 
+
+# needed to allow a map between absolute paths that cmake makes and debugging (gdb)
+# the path here is only for debugging and is the local of the machine that the 
+# application is being debugged on
+add_compile_options(-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=Z:\\captureInterface)
+
 # set output dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -38,14 +46,18 @@ add_custom_command(
 
 add_executable(captureInterface
     src/main.cpp
+    src/utils.cpp
     src/core/event_loop.cpp
     src/core/task_handler.cpp
     src/core/application_data.cpp
     src/core/capturer.cpp
     src/tasks/poll_hotkeys.cpp
+    src/tasks/poll_fgwin.cpp
+    src/tasks/poll_gamewin.cpp
+    src/tasks/log_fgwin.cpp
     "${CMAKE_BINARY_DIR}/captureInterface.res" # Link the resource file
 )
 
 # includes for binary
-target_link_libraries(captureInterface PRIVATE oleaut32 runtimeobject)
+target_link_libraries(captureInterface PRIVATE oleaut32 runtimeobject dbghelp)
 target_include_directories(captureInterface PUBLIC "${PROJECT_BINARY_DIR}")

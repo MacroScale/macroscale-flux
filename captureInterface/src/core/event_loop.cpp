@@ -1,5 +1,8 @@
 #include "event_loop.h"
 #include "logger.h"
+#include "task_handler.h"
+#include "tasks.h"
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -59,9 +62,12 @@ void EventLoop::ProcessEvent(Event& e) {
             oss << "eventloop: stop capture";
             SLOG.info(oss.str());
         } else if (id == 4) { 
-            std::ostringstream oss;
-            oss << "eventloop: log processes";
-            SLOG.info(oss.str());
+            SLOG.info("eventloop: log processes");
+
+            TaskHandler* taskHandlerInst = TaskHandler::Instance();
+            std::unique_ptr<Task> logTask = std::make_unique<Tasks::LogFGWins>();
+            taskHandlerInst->AddTask(std::move(logTask));
+
         } else {
             std::ostringstream oss;
             oss << "unhandled hotkey id: " << id;

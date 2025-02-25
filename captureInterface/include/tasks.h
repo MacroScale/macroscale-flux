@@ -1,4 +1,3 @@
-
 #ifndef TASKS_H
 #define TASKS_H
 
@@ -22,14 +21,28 @@ private:
 namespace Tasks {
 
     // oneshot
-    //... 
+    class LogFGWins: public Task {
+        public: 
+            LogFGWins(); 
+            void Execute() override; 
+    }; 
+
     // Polls 
     class PollHotkeys: public Task {
         public: 
             PollHotkeys(); 
             void Execute() override; 
     }; 
-
+    class PollFGWin: public Task {
+        public: 
+            PollFGWin(); 
+            void Execute() override; 
+    }; 
+    class PollGameWin: public Task {
+        public: 
+            PollGameWin(); 
+            void Execute() override; 
+    }; 
 }
 
 #endif

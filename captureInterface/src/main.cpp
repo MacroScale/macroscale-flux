@@ -32,6 +32,8 @@ void CheckWinVer() {
 }
 
 int main() {
+
+    std::cout << std::unitbuf;
     SLOG.info("starting program");
 
     CheckWinVer();
@@ -53,10 +55,14 @@ int main() {
     std::thread task_thread(&TaskHandler::Start, taskHandlerInst);
 
     // create initial tasks
-    Tasks::PollHotkeys poll_hotkeys_task;
+    std::unique_ptr<Task> poll_hotkeys_task = std::make_unique<Tasks::PollHotkeys>();
+    std::unique_ptr<Task> poll_fgwin_task = std::make_unique<Tasks::PollFGWin>();
+    std::unique_ptr<Task> poll_gwin_task = std::make_unique<Tasks::PollGameWin>();
 
     // add tasks to task handler
-    taskHandlerInst->AddTask(poll_hotkeys_task);
+    taskHandlerInst->AddTask(std::move(poll_hotkeys_task));
+    taskHandlerInst->AddTask(std::move(poll_fgwin_task));
+    taskHandlerInst->AddTask(std::move(poll_gwin_task));
 
     event_thread.join();
     task_thread.join();
