@@ -33,17 +33,11 @@ RUN yay -S --noconfirm mingw-w64-cppwinrt
 
 RUN yay -S --noconfirm clang \
     mingw-w64-x86_64-clang \
+    mingw-w64-x86_64-toolchain \
 # contains dbghelp lib for mini dumps
-    mingw-w64-winpthreads 
-
-# download and install cmake 4.0.0 prerelease (has manifest support)
-# RUN curl -L https://github.com/Kitware/CMake/releases/download/v4.0.0-rc1/cmake-4.0.0-rc1-linux-x86_64.tar.gz -o cmake.tar.gz && \
-#     tar xzvf cmake.tar.gz
+    mingw-w64-winpthreads
 
 USER root
-
-# Symlink CMake binaries to /usr/local/bin so they can be called anywhere
-# RUN ln -s /cmake-4.0.0-rc1-linux-x86_64/bin/cmake /usr/local/bin/cmake
 
 WORKDIR /
 

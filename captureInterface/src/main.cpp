@@ -6,7 +6,6 @@
 #include "logger.h"
 #include "task_handler.h"
 #include "tasks.h"
-#include "capturer.h"
 
 
 void initNvfbc(){
@@ -37,15 +36,6 @@ int main() {
     SLOG.info("starting program");
 
     CheckWinVer();
-
-    /*bool capturerStatus = CAPTURER.Init();*/
-    /*if (capturerStatus) {*/
-    /*    SLOG.error("capture is not supported on this device!");*/
-    /*    return 0;*/
-    /*} else {*/
-    /*    SLOG.info("capture is supported!");*/
-    /*}*/
-    /**/
 
     EventLoop* eventLoopInst = EventLoop::Instance();
     TaskHandler* taskHandlerInst = TaskHandler::Instance();

@@ -1,6 +1,8 @@
 #ifndef APPLICATION_DATA_H
 #define APPLICATION_DATA_H
 
+#include "capturer.h"
+#include <memory>
 #include <mutex>
 #include <string>
 #include <windef.h>
@@ -18,6 +20,7 @@ private:
     static std::mutex instMutex;
 
     std::pair<HWND, std::string> currentGameWin;
+    std::unique_ptr<Capturer> capturer;
 
     bool hasInit = false;
 

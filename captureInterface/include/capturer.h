@@ -1,42 +1,45 @@
 #ifndef CAPTURER_H
 #define CAPTURER_H
 
-#include <mutex>
-#include <winrt/Windows.Graphics.Capture.h>
-
-
 class Capturer {
 
 public:
-    static Capturer& Instance();
-    bool Init();
-    void Capture();
+    Capturer(winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice const& device,
+        winrt::Windows::Graphics::Capture::GraphicsCaptureItem const& item);
+
+    ~Capturer() { Close(); }
 
     void StartCapture();
     void EndCapture();
     void ScreenShot();
     void SaveCapture();
+    void Close();
 
 private:
-    // Static pointer to the Singleton instance
-    static Capturer* instancePtr;
-    static std::mutex instMutex;
-
-    bool hasInit = false;
-
-    // capture API objects.
+    winrt::Windows::Graphics::Capture::GraphicsCaptureItem item{ nullptr };
+    winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool framePool{ nullptr };
+    winrt::Windows::Graphics::Capture::GraphicsCaptureSession session{ nullptr };
     winrt::Windows::Graphics::SizeInt32 lastSize;
-    winrt::Windows::Graphics::Capture::GraphicsCaptureItem* item;
-    winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool* framePool;
-    winrt::Windows::Graphics::Capture::GraphicsCaptureSession* session;
-    
-    Capturer(){}
 
-    // deleting the copy constructor to prevent copies
-    Capturer(const Capturer& obj) = delete;
-    void operator=(Capturer const&) = delete;
+    winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice device{ nullptr };
+    winrt::com_ptr<IDXGISwapChain1> swapChain{ nullptr };
+    winrt::com_ptr<ID3D11DeviceContext> d3dContext{ nullptr };
+
+    std::atomic<bool> closed = false;
+    winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool::FrameArrived_revoker frameArrived;
+
+
+    void OnFrameArrived(
+            winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool const& sender,
+            winrt::Windows::Foundation::IInspectable const& args);
+
+    void CheckClosed()
+    {
+        if (closed.load() == true)
+        {
+            throw winrt::hresult_error();
+        }
+    }
 };
-
-static Capturer& CAPTURER = Capturer::Instance();
 
 #endif

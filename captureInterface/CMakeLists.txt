@@ -45,6 +45,7 @@ add_custom_command(
 )
 
 add_executable(captureInterface
+    include/pch.cpp
     src/main.cpp
     src/utils.cpp
     src/core/event_loop.cpp
@@ -60,3 +61,4 @@ add_executable(captureInterface
 # includes for binary
 target_link_libraries(captureInterface PRIVATE oleaut32 runtimeobject dbghelp)
 target_include_directories(captureInterface PUBLIC "${PROJECT_BINARY_DIR}")
+target_precompile_headers(captureInterface PUBLIC include/pch.h)
